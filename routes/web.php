@@ -3,9 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
+use App\Http\Controllers\SupplierController;
 
 
 Route::resource('kategori', KategoriController::class);
+Route::resource('supplier', SupplierController::class);
 
 Route::get('/', function () {
     return view('welcome');

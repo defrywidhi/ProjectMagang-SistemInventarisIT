@@ -37,11 +37,16 @@
                         </li>
                         <li class="nav-item">
                             <a href="{{ route('kategori.index') }}" class="nav-link">
-                                <i class="nav-icon bi bi-tags-fill"></i>
+                                <i class="nav-icon bi bi-tags"></i>
                                 <p>Kategori</p>
                             </a>
-                        </li>">
-
+                        </li>
+                        <li>
+                            <a href="{{ route('supplier.index') }}" class="nav-link">
+                                <i class="nav-icon bi bi-shop"></i>
+                                <p>Supplier</p>
+                            </a>
+                        </li>
                         </li>
                     </ul>
                 </li>
