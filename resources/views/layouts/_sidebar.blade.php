@@ -47,6 +47,11 @@
                                 <p>Supplier</p>
                             </a>
                         </li>
+                        <li>
+                            <a href="{{ route('barang.index') }}" class="nav-link">
+                                <i class="nav-icon bi bi-box"></i>
+                                <p>Barang</p>
+                        </li>
                         </li>
                     </ul>
                 </li>

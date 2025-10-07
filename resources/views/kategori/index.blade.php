@@ -11,11 +11,11 @@
     </div>
 @endif
 <div class="container">
-    <h1>Tabel Mengambil semua data dari kategori</h1>
+    <h1>Tabel Kategori</h1>
     <div class="my-3">
         <a href="{{ route('kategori.create') }}" class="btn btn-primary"> Tambah Kategori </a>
     </div>
-    <table class="table table-bordered" style="border-color:black">
+    <table class="table table-bordered">
         <thead>
             <tr>
                 <th>ID</th>

@@ -4,10 +4,12 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\BarangITController;
 
 
 Route::resource('kategori', KategoriController::class);
 Route::resource('supplier', SupplierController::class);
+Route::resource('barang', BarangITController::class);
 
 Route::get('/', function () {
     return view('welcome');
