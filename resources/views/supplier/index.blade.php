@@ -37,12 +37,15 @@
                         <td>{{ $item -> alamat }}</td>
                         <td>{{ $item -> nomor_telepon }}</td>
                         <td>{{ $item -> email }}</td>
-                        <td><a href="{{ route('supplier.edit', $item->id) }}" class="btn btn-warning">Edit</a>
+                        <td>
+                            <div class="">
+                            <a href="{{ route('supplier.edit', $item->id) }}" class="btn btn-warning">Edit</a>
                             <form class="d-inline-block" action="{{ route('supplier.destroy', $item->id) }}"method="post">
                                 @csrf
                                 @method('delete')
                                 <button type="submit" class="btn btn-danger" onclick="return confirm('Yakin menghapus data ini?')">Hapus</button>
                             </form>
+                            </div>
                     </td>
                     </tr>
                 @endforeach

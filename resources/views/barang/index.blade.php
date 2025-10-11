@@ -35,7 +35,7 @@
                     <th>Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="text-center align-middle">
             @foreach ($barang as $item )
                 <tr>
                     <td>{{ $item -> kategori -> nama_kategori }}</td>
@@ -49,7 +49,7 @@
                     <td>{{ $item -> lokasi_penyimpanan }}</td>
                     <td>
                         @if($item->gambar_barang)
-                        <img src="{{ asset('storage/gambar_barang/'. $item->gambar_barang) }}" alt="Gambar Barang" class="ratio ratio-1x1">
+                        <img src="{{ asset('storage/gambar_barang/'. $item->gambar_barang) }}" alt="Gambar Barang" class="object-fit-cover" style="width: 100px; height: 100px;">
                         @else
                         Tidak Ada Gambar
                         @endif
@@ -60,7 +60,7 @@
                         <form action="{{ route('barang.destroy', $item->id) }}" method="post" class="d-inline">
                         @csrf
                         @method('delete')
-                        <button type="submit" class="btn btn-danger" onclick="return alert('yakin menghapus file ini?')" >Hapus</button>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('yakin menghapus file ini?')" >Hapus</button>
                         </form>
                     </td>
                 </tr>

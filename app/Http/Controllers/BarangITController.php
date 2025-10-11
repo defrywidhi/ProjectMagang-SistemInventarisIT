@@ -98,7 +98,7 @@ class BarangITController extends Controller
             'stok_minimum' => 'required|integer|min:0',
             'kondisi' => 'required|in:Baru,Bekas,Rusak',
             'lokasi_penyimpanan' => 'nullable|string|max:255',
-            'gambar_barang' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'gambar_barang' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:5000',
         ]);
 
         $data = $request->except('gambar_barang');

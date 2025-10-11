@@ -18,7 +18,6 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Nama Kategori</th>
                 <th>Kode Kategori</th>
                 <th>Aksi</th>
@@ -27,7 +26,6 @@
         <tbody>
             @foreach ($kategori as $item )
             <tr>
-                <td>{{ $item->id }}</td>
                 <td>{{ $item->nama_kategori }}</td>
                 <td>{{ $item->kode_kategori }}</td>
                 <td>

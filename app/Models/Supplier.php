@@ -14,4 +14,8 @@ class Supplier extends Model
         'nomor_telepon',
         'email'
     ];
+
+    public function transaksiMasuks(){
+        return $this->hasMany(TransaksiMasuk::class);
+    }
 }

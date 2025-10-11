@@ -5,11 +5,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\BarangITController;
+use App\Http\Controllers\TransaksiMasukController;
 
 
-Route::resource('kategori', KategoriController::class);
-Route::resource('supplier', SupplierController::class);
-Route::resource('barang', BarangITController::class);
+Route::resource('kategori', KategoriController::class)->middleware('auth');
+Route::resource('supplier', SupplierController::class)->middleware('auth');
+Route::resource('barang', BarangITController::class)->middleware('auth');
+Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware('auth');
 
 Route::get('/', function () {
     return view('welcome');
