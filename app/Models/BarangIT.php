@@ -29,4 +29,8 @@ class BarangIT extends Model
     public function transaksiMasuks(){
         return $this->hasMany(TransaksiMasuk::class);
     }
+
+    public function transaksiKeluars(){
+        return $this->hasMany(TransaksiKeluar::class);
+    }
 }

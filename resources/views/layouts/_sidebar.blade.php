@@ -68,6 +68,12 @@
                                 <p>Barang Masuk</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="{{ route('transaksi-keluar.index') }}" class="nav-link">
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>Barang Keluar</p>
+                            </a>
+                        </li>
                         {{-- Nanti di sini ada Barang Keluar --}}
                     </ul>
                 </li>
