@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\BarangIT;
 use App\Models\Kategori;
 use Illuminate\Support\Facades\Storage;
+use App\Models\TransaksiKeluar;
+use App\Models\TransaksiMasuk;
 
 class BarangITController extends Controller
 {
@@ -128,6 +130,10 @@ class BarangITController extends Controller
     public function destroy(BarangIT $barang)
     {
         //
+        if ($barang->transaksiMasuks()->exists() || $barang->transaksiKeluars()->exists()){
+            return redirect()->route('barang.index')->with('error', 'Barang ini memiliki riwayat transaksi, tidak dapat dihapus');
+        }
+
         if ($barang->gambar_barang) {
             Storage::delete('public/gambar_barang/' . $barang->gambar_barang);
         }

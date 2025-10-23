@@ -5,10 +5,22 @@
 <div class="container">
 
 <div>
-    @session('success')
-    <div class="alert alert-success">
+    @if(session('success'))
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
-    @endsession
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
+    @if(session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
 </div>
     <div>
         <h1>Tabel Barang</h1>
@@ -59,7 +71,7 @@
 
                         <form action="{{ route('barang.destroy', $item->id) }}" method="post" class="d-inline">
                         @csrf
-                        @method('delete')
+                        @method('DELETE')
                         <button type="submit" class="btn btn-danger" onclick="return confirm('yakin menghapus file ini?')" >Hapus</button>
                         </form>
                     </td>

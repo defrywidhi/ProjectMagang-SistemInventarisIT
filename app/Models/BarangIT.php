@@ -27,10 +27,10 @@ class BarangIT extends Model
     }
 
     public function transaksiMasuks(){
-        return $this->hasMany(TransaksiMasuk::class);
+        return $this->hasMany(TransaksiMasuk::class, 'barang_it_id');
     }
 
     public function transaksiKeluars(){
-        return $this->hasMany(TransaksiKeluar::class);
+        return $this->hasMany(TransaksiKeluar::class, 'barang_it_id');
     }
 }

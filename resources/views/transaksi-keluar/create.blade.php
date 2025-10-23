@@ -19,7 +19,12 @@
                 </div>
                 <div class="form-group">
                     <label for="jumlah_keluar">Jumlah Barang Keluar</label>
-                    <input type="number" class="form-control" id="jumlah_keluar" name="jumlah_keluar" required>
+                    <input @error('jumlah_keluar') is-invalid @enderror type="number" class="form-control" id="jumlah_keluar" name="jumlah_keluar" required>
+                    @error('jumlah_keluar')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 <div class="form-group">
                     <label for="tanggal_keluar">Tanggal Keluar</label>

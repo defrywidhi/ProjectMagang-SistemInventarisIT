@@ -84,7 +84,7 @@ class TransaksiMasukController extends Controller
      */
     public function update(Request $request, TransaksiMasuk $transaksi_masuk)
     {
-        $request->validate([
+        $validateData = $request->validate([
             'barang_it_id' => 'required|exists:barang_it,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'jumlah_masuk' => 'required|integer|min:1',
@@ -93,18 +93,23 @@ class TransaksiMasukController extends Controller
             'keterangan' => 'nullable|string',
         ]);
 
-        $jumlah_masuk_lama = $request->jumlah_masuk;
-        $barang_lama = BarangIT::find($transaksi_masuk->barang_it_id);
+        $jumlah_lama = $transaksi_masuk->jumlah_masuk;
+        $barang_lama_id = $transaksi_masuk->barang_it_id;
 
-        $transaksi_masuk->update($request->all());
+        $transaksi_masuk->update($validateData);
 
-        $barang_lama->stok -= $jumlah_masuk_lama;
-        $barang_lama->save();
-
+        $barang_lama = BarangIT::find($barang_lama_id);
         $barang_baru = BarangIT::find($transaksi_masuk->barang_it_id);
-        $barang_baru->stok += $transaksi_masuk->jumlah_masuk;
-        $barang_baru->save();
 
+        if ($barang_lama){
+            $barang_lama->stok -= $jumlah_lama;
+            $barang_lama->save();
+        }
+
+        if ($barang_baru){
+            $barang_baru->stok += $transaksi_masuk->jumlah_masuk;
+            $barang_baru->save();
+        }
 
         return redirect()->route('transaksi-masuk.index')->with('succsess', 'Data Transaksi Berhasil Diupdate');
     }
