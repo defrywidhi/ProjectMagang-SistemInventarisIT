@@ -16,9 +16,9 @@ class TransaksiMasukController extends Controller
     public function index()
     {
         //
-        $transaksi_masuk = TransaksiMasuk::with(['barang_it', 'supplier', 'user'])->latest()->get();
+        $transaksis_masuk = TransaksiMasuk::with(['barang_it', 'supplier', 'user'])->latest()->get();
 
-        return view('transaksi-masuk.index', compact('transaksi_masuk'));
+        return view('transaksi-masuk.index', compact('transaksis_masuk'));
     }
 
     /**
@@ -56,7 +56,7 @@ class TransaksiMasukController extends Controller
         $barang->stok += $transaksi_masuk->jumlah_masuk;
         $barang->save();
 
-        return redirect()->route('transaksi-masuk.index')->with('succsess', 'Data Transaksi Berhasil Dimasukkan');
+        return redirect()->route('transaksi-masuk.index')->with('success', 'Data Transaksi Berhasil Dimasukkan');
     }
 
     /**
@@ -111,7 +111,7 @@ class TransaksiMasukController extends Controller
             $barang_baru->save();
         }
 
-        return redirect()->route('transaksi-masuk.index')->with('succsess', 'Data Transaksi Berhasil Diupdate');
+        return redirect()->route('transaksi-masuk.index')->with('success', 'Data Transaksi Berhasil Diupdate');
     }
 
     /**
@@ -129,6 +129,6 @@ class TransaksiMasukController extends Controller
             $barang->save();
         }
 
-        return redirect()->route('transaksi-masuk.index')->with('succsess', 'Data Transaksi Berhasil Dihapus');
+        return redirect()->route('transaksi-masuk.index')->with('success', 'Data Transaksi Berhasil Dihapus');
     }
 }

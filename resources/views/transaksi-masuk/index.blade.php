@@ -24,7 +24,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ( $transaksi_masuk as $item )
+                        @foreach ( $transaksis_masuk as $item )
                         <tr>
                             <td>{{ $item->barang_it->nama_barang }}</td>
                             <td>{{ $item->supplier->nama_supplier }}</td>

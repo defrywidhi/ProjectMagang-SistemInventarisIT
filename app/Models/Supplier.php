@@ -16,6 +16,6 @@ class Supplier extends Model
     ];
 
     public function transaksiMasuks(){
-        return $this->hasMany(TransaksiMasuk::class);
+        return $this->hasMany(TransaksiMasuk::class, 'supplier_id');
     }
 }

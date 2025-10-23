@@ -17,9 +17,9 @@ class BarangITController extends Controller
     public function index()
     {
         //
-        $barang = BarangIT::all();
+        $barangs = BarangIT::all();
 
-        return view('barang.index', compact('barang'));
+        return view('barang.index', compact('barangs'));
     }
 
     /**
@@ -112,7 +112,7 @@ class BarangITController extends Controller
             
             $file = $request->file('gambar_barang');
             $fileName = time()."-".$file->getClientOriginalName();
-            $file->storeAs('public/gambar_barang', $fileName);
+            $file->storeAs('public/gambar_barang/', $fileName);
 
 
             $data['gambar_barang'] = $fileName;

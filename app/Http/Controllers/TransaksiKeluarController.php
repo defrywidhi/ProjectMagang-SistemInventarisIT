@@ -28,8 +28,8 @@ class TransaksiKeluarController extends Controller
     public function create()
     {
         //
-        $barang_it = BarangIT::all();
-        return view('transaksi-keluar.create', compact('barang_it'));
+        $barangs = BarangIT::all();
+        return view('transaksi-keluar.create', compact('barangs'));
     }
 
     /**

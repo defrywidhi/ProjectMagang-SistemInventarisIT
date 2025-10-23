@@ -2,14 +2,22 @@
 
 @section('content')
 
-@session('success')
+@if (session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         {{ session('success') }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-@endsession
+@endif
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+@endif
 
 <div class="container">
 
@@ -31,7 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ( $Supplier as $item )
+                @foreach ( $suppliers as $item )
                     <tr>
                         <td>{{ $item -> nama_supplier }}</td>
                         <td>{{ $item -> alamat }}</td>

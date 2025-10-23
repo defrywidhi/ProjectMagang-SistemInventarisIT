@@ -13,8 +13,8 @@ class SupplierController extends Controller
     public function index()
     {
         //
-        $Supplier = Supplier::all();
-        return view('supplier.index', compact('Supplier'));
+        $suppliers = Supplier::all();
+        return view('supplier.index', compact('suppliers'));
     }
 
     /**
@@ -83,6 +83,10 @@ class SupplierController extends Controller
     public function destroy(Supplier $supplier)
     {
         //
+        if($supplier->transaksiMasuks()->exists()){
+            return redirect()->route('supplier.index')->with('error', 'Data tidak dapat dihapus karena memiliki transaksi masuk');
+        }
+
         $supplier->delete();
 
         return redirect()->route('supplier.index')->with('success', 'Data berhasil di hapus');

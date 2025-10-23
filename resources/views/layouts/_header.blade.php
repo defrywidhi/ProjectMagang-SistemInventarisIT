@@ -22,8 +22,11 @@
                         </p>
                     </li>
                     <li class="user-footer">
-                        <a href="#" class="btn btn-default btn-flat">Profile</a>
-                        <a href="#" class="btn btn-default btn-flat float-end">Sign out</a>
+                        <a href="{{ route('profile.edit') }}" class="btn btn-default btn-flat">Profile</a>
+                        <form method="post" action="{{ route('logout') }}" class="d-inline float-end">
+                            @csrf
+                            <button type="submit" class="btn btn-default btn-flat">Sign out</button>
+                        </form>
                     </li>
                     </ul>
             </li>

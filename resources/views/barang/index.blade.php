@@ -48,7 +48,7 @@
                 </tr>
             </thead>
             <tbody class="text-center align-middle">
-            @foreach ($barang as $item )
+            @foreach ($barangs as $item )
                 <tr>
                     <td>{{ $item -> kategori -> nama_kategori }}</td>
                     <td>{{ $item -> nama_barang }}</td>

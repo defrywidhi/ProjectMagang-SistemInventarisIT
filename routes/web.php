@@ -1,14 +1,13 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\BarangITController;
 use App\Http\Controllers\TransaksiMasukController;
 use App\Http\Controllers\TransaksiKeluarController;
-
-
 
 Route::resource('kategori', KategoriController::class)->middleware('auth');
 Route::resource('supplier', SupplierController::class)->middleware('auth');
@@ -17,9 +16,11 @@ Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware(
 Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middleware('auth');
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('auth.login');
 });
-
 
 Route::get('/dashboard', function () {
     return view('dashboard');
