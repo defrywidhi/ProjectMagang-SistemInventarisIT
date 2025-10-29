@@ -1,17 +1,17 @@
 @extends('layouts.master')
 
+@section('content_title', 'Transaksi Masuk')
+@section('title', 'Transaksi Masuk')
+
 @section('content')
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <h1>Transaksi Masuk</h1>
+                <a href="{{ route('transaksi-masuk.create') }}" class="btn btn-primary">Tambah Transaksi Masuk</a>
             </div>
             <div class="card-body">
-                <div class="mb-3">
-                    <a href="{{ route('transaksi-masuk.create') }}" class="btn btn-primary">Tambah Transaksi Masuk</a>
-                </div>
                 <table class="table table-bordered">
-                    <thead>
+                    <thead class="text-center">
                         <tr>
                             <th>Nama Barang</th>
                             <th>Supplier</th>
@@ -20,11 +20,11 @@
                             <th>Harga Satuan</th>
                             <th>Keterangan</th>
                             <th>User Input</th>
-                            <th>Aksi</th>
+                            <th style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ( $transaksis_masuk as $item )
+                        @forelse ( $transaksis_masuk as $item )
                         <tr>
                             <td>{{ $item->barang_it->nama_barang }}</td>
                             <td>{{ $item->supplier->nama_supplier }}</td>
@@ -33,7 +33,7 @@
                             <td>{{ $item->harga_satuan }}</td>
                             <td>{{ $item->keterangan }}</td>
                             <td>{{ $item->user->name }}</td>
-                            <td>
+                            <td class="text-center">
                                 <a href="{{ route('transaksi-masuk.edit', $item->id) }}" class="btn btn-warning">Edit</a>
                                 <form action="{{ route('transaksi-masuk.destroy', $item->id) }}" method="POST" style="display: inline;">
                                     @csrf
@@ -42,7 +42,11 @@
                                 </form>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="8" class="text-center">Tidak ada data transaksi masuk</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>

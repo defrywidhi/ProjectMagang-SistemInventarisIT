@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('rabs', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_rab')->unique();
+            $table->string('judul');
+            $table->foreignId('user_id')->constrained('users');
+            $table->enum('status', ['Draft', 'Menunggu Approval', 'Disetujui', 'Ditolak'])->default('Draft');
+            $table->date('tanggal_dibuat');
+            $table->date('tanggal_disetujui')->nullable();
+            $table->foreignId('approved_by')->nullable()->constrained('users');
+            $table->text('catatan_approval')->nullable();
             $table->timestamps();
         });
     }

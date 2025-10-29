@@ -1,7 +1,7 @@
 <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
     <div class="sidebar-brand">
         <a href="{{ route('dashboard') }}" class="brand-link"> {{-- Arahkan ke dashboard --}}
-            <img src="{{ asset('dist/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
+            <img src="{{ asset('dist/assets/img/AdminLTELogo.png') }}" alt="AdminLTE Logo" class="brand-image opacity-75 shadow" />
             <span class="brand-text fw-light">Sistem Inventory</span>
         </a>
     </div>
@@ -76,6 +76,28 @@
                             <a href="{{ route('transaksi-keluar.index') }}" class="nav-link {{ request()->is('transaksi-keluar*') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Barang Keluar</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li> {{-- Penutup </li> Transaksi --}}
+
+                
+                {{-- Menu RAB (Dropdown) --}}
+                {{-- Tambahkan class 'menu-open' jika URL saat ini diawali 'RAB-masuk*' atau 'RAB-keluar*' --}}
+                <li class="nav-item {{ request()->is('rab*') ? 'menu-open' : '' }}">
+                    <a href="#" class="nav-link {{ request()->is('rab*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-file-earmark-bar-graph"></i>
+                        <p>
+                            Anggaran
+                            <i class="nav-arrow bi bi-chevron-right"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            {{-- Tambahkan class 'active' jika URL saat ini diawali 'transaksi-masuk*' --}}
+                            <a href="{{ route('rab.index') }}" class="nav-link {{ request()->is('transaksi-masuk*') ? 'active' : '' }}">
+                                <i class="nav-icon bi bi-circle"></i>
+                                <p>RAB</p>
                             </a>
                         </li>
                     </ul>
