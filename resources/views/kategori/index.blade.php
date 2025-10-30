@@ -9,7 +9,7 @@
     <div class="card-header">
         <a href="{{ route('kategori.create') }}" class="btn btn-primary">Tambah Kategori</a>
     </div>
-    <div class="card-body">
+    <div class="card-body p-0 text-center table-responsive">
         @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -26,16 +26,15 @@
                 </button>
             </div>
         @endif
-        <div class="table-responsive">
         <table class="table table-bordered">
-            <thead class="text-center" >
+            <thead>
                 <tr>
                     <th>Nama Kategori</th>
                     <th>Kode Kategori</th>
                     <th style="width: 150px;">Aksi</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody class="align-middle">
                 @forelse ($kategoris as $item )
                 <tr>
                     <td>{{ $item->nama_kategori }}</td>

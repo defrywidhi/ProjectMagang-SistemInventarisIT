@@ -9,9 +9,17 @@
             <div class="card-header">
                 <a href="{{ route('transaksi-masuk.create') }}" class="btn btn-primary">Tambah Transaksi Masuk</a>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0 text-center table-responsive">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
                 <table class="table table-bordered">
-                    <thead class="text-center">
+                    <thead>
                         <tr>
                             <th>Nama Barang</th>
                             <th>Supplier</th>
@@ -23,15 +31,15 @@
                             <th style="width: 150px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="align-middle">
                         @forelse ( $transaksis_masuk as $item )
                         <tr>
                             <td>{{ $item->barang_it->nama_barang }}</td>
                             <td>{{ $item->supplier->nama_supplier }}</td>
                             <td>{{ $item->jumlah_masuk }}</td>
                             <td>{{ $item->tanggal_masuk }}</td>
-                            <td>{{ $item->harga_satuan }}</td>
-                            <td>{{ $item->keterangan }}</td>
+                            <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
+                            <td>{{ $item->keterangan ?? '_'}}</td>
                             <td>{{ $item->user->name }}</td>
                             <td class="text-center">
                                 <a href="{{ route('transaksi-masuk.edit', $item->id) }}" class="btn btn-warning">Edit</a>

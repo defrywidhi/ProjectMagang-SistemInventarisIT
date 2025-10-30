@@ -16,6 +16,7 @@ Route::resource('barang', BarangITController::class)->middleware('auth');
 Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware('auth');
 Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middleware('auth');
 Route::resource('rab', RabController::class)->middleware('auth');
+Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {

@@ -9,9 +9,17 @@
             <div class="card-header">
                 <a href="{{ route('transaksi-keluar.create') }}" class="btn btn-primary">Tambah Transaksi Keluar</a>
             </div>
-            <div class="card-body">
+            <div class="card-body p-0 text-center table-responsive">
+                @if (session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                @endif
                 <table class="table table-bordered">
-                    <thead class="text-center" >
+                    <thead class="align-middle">
                         <tr>
                             <th>Nama Barang</th>
                             <th>Jumlah Keluar</th>
@@ -27,7 +35,7 @@
                             <td>{{ $item->barang_it->nama_barang }}</td>
                             <td>{{ $item->jumlah_keluar }}</td>
                             <td>{{ $item->tanggal_keluar }}</td>
-                            <td>{{ $item->keterangan }}</td>
+                            <td>{{ $item->keterangan ?? '_'}}</td>
                             <td>{{ $item->user->name }}</td>
                             <td class="text-center">
                                 <a href="{{ route('transaksi-keluar.edit', $item->id) }}" class="btn btn-warning">Edit</a>

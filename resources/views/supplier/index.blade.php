@@ -10,7 +10,7 @@
         <div class="card-header">
             <a href="{{ route('supplier.create') }}" class="btn btn-primary">Tambah Supplier</a>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0 text-center table-responsive">
             @if (session('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session('success') }}
@@ -28,7 +28,7 @@
                 </div>
             @endif
             <table class="table table-bordered">
-                <thead class="text-center">
+                <thead>
                     <tr>
                         <th>Nama Supplier</th>
                         <th>Alamat</th>
@@ -37,13 +37,13 @@
                         <th style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="align-middle">
                     @forelse ( $suppliers as $item )
                         <tr>
                             <td>{{ $item -> nama_supplier }}</td>
                             <td>{{ $item -> alamat }}</td>
                             <td>{{ $item -> nomor_telepon }}</td>
-                            <td>{{ $item -> email }}</td>
+                            <td>{{ $item -> email ?? '_'}}</td>
                             <td class="text-center">
                                 <div class="">
                                 <a href="{{ route('supplier.edit', $item->id) }}" class="btn btn-warning">Edit</a>

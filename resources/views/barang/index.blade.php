@@ -9,7 +9,7 @@
         <div class="card-header">
             <a href="{{ route('barang.create') }}" class="btn btn-primary">Tambah Barang</a>
         </div>
-        <div class="card-body">
+        <div class="card-body p-0 text-center table-responsive">
             @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
@@ -26,9 +26,8 @@
                 </button>
             </div>
             @endif
-            <div class="table-responsive">
             <table class="table table-bordered">
-                <thead class="text-center" >
+                <thead>
                     <tr>
                         <th>Kategori</th>
                         <th>Nama Barang</th>
@@ -43,18 +42,18 @@
                         <th style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody class="text-center align-middle">
+                <tbody class="align-middle">
                     @forelse ($barangs as $item )
                     <tr>
                         <td>{{ $item -> kategori -> nama_kategori }}</td>
                         <td>{{ $item -> nama_barang }}</td>
-                        <td>{{ $item -> merk }}</td>
-                        <td>{{ $item -> serial_number }}</td>
-                        <td>{{ $item -> deskripsi }}</td>
+                        <td>{{ $item -> merk ?? '_'}}</td>
+                        <td>{{ $item -> serial_number ?? '_'}}</td>
+                        <td>{{ $item -> deskripsi ?? '_'}}</td>
                         <td>{{ $item -> stok }}</td>
                         <td>{{ $item -> stok_minimum }}</td>
                         <td>{{ $item -> kondisi }}</td>
-                        <td>{{ $item -> lokasi_penyimpanan }}</td>
+                        <td>{{ $item -> lokasi_penyimpanan ?? '_'}}</td>
                         <td>
                             @if($item->gambar_barang)
                             <img src="{{ asset('storage/gambar_barang/'. $item->gambar_barang) }}" alt="Gambar Barang" class="object-fit-cover" style="width: 100px; height: 100px;">
