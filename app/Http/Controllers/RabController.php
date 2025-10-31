@@ -88,7 +88,7 @@ class RabController extends Controller
 
         // 5. Kembalikan ke halaman show dengan pesan sukses
         return redirect()->route('rab.show', $rab->id)
-            ->with('success_detail', 'Item baru berhasil ditambahkan ke RAB!');
+            ->with('success', 'Item baru berhasil ditambahkan ke RAB!');
     }
 
     /**
@@ -164,7 +164,7 @@ class RabController extends Controller
         $rab_detail->update($validatedData);
 
         return redirect()->route('rab.show', $rab_detail->rab_id)
-            ->with('success_detail', 'Item RAB Berhasil Diperbaharui');
+            ->with('success', 'Item RAB Berhasil Diperbaharui');
     }
 
 
@@ -196,6 +196,27 @@ class RabController extends Controller
         $rab_detail->delete();
 
         return redirect()->route('rab.show', $rab->id)
-            ->with('success_detail', 'Data berhasil dihapus dari RAB!');
+            ->with('success', 'Data berhasil dihapus dari RAB!');
+    }
+
+
+    // Function untuk mengajukan RAB
+    public function ajukanApproval(Request $request, Rab $rab)
+    {
+        if($rab->status != 'Draft'){
+            return redirect()->route('rab.show', $rab->id)
+                ->with('error', 'RAB tidak dapat diajukan karena sudah ' . $rab->status . '!');
+        }
+
+        if($rab->details()->count() == 0){
+            return redirect()->route('rab.show', $rab->id)
+                ->with('error', 'RAB tidak dapat diajukan karena tidak memiliki rincian barang!');
+        }
+
+        $rab->status = 'Menunggu Approval';
+        $rab->save();
+
+        return redirect()->route('rab.show', $rab->id)
+            ->with('success', 'RAB Berhasil Diajukan');
     }
 }

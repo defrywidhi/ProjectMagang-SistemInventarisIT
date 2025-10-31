@@ -10,9 +10,9 @@
         <a href="{{ route('rab.index') }}" class="btn btn-secondary">Kembali ke Daftar RAB</a>
     </div>
 
-    @if(session('success_detail'))
+    @if(session('success'))
     <div class="alert alert-success alert-dismissible fade show" role="alert">
-        {{ session('success_detail') }}
+        {{ session('success') }}
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
@@ -101,9 +101,26 @@
                     @endforelse
                 </tbody>
             </table>
+            <hr>
+            @if ($rab->status == 'Draft')
+                <form action="{{ route('rab.ajukan', $rab->id) }}" method="post">
+                    @csrf
+                    <button type="submit" class="btn btn-success ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
+                        <i class="bi bi-check-circle"></i> Ajukan Approval
+                    </button>
+                </form>
+                <p class="text-muted d-inline-block ms-2 mt-2">RAB ini masih draft dan dapat diubah.</p>
+            @else
+                <p class="text-info ms-2">
+                <i class="bi bi-info-circle-fill"></i>
+                RAB ini sudah diajukan dan sedang dalam status: <strong>{{ $rab->status }}</strong>
+                </p>
+            @endif
         </div>
     </div>
 
+
+    @if ($rab->status == 'Draft')
     {{-- Kartu Form Tambah Detail Barang (AKAN KITA BUAT LOGIKANYA NANTI) --}}
     <div class="card card-outline card-success mt-4">
         <div class="card-header">
@@ -162,7 +179,8 @@
                 </div>
             </form>
         </div>
-    </div>
+    </div>  
+    @endif
 
 </div>
 @endsection

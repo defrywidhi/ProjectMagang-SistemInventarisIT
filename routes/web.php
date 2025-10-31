@@ -9,6 +9,7 @@ use App\Http\Controllers\BarangITController;
 use App\Http\Controllers\TransaksiMasukController;
 use App\Http\Controllers\TransaksiKeluarController;
 use App\Http\Controllers\RabController;
+use App\Models\Rab;
 
 Route::resource('kategori', KategoriController::class)->middleware('auth');
 Route::resource('supplier', SupplierController::class)->middleware('auth');
@@ -20,6 +21,7 @@ Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('
 Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail'])->name('rab.details.destroy')->middleware('auth');
 Route::get('/rab/details/{rab_detail}/edit', [RabController::class, 'editDetail'])->name('rab.details.edit')->middleware('auth');
 Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])->name('rab.details.update')->middleware('auth');
+Route::post('/rab/{rab}/ajukan', [RabController::class, 'ajukanApproval'])->name('rab.ajukan')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {
