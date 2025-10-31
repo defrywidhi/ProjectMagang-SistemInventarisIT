@@ -19,7 +19,6 @@ class RabController extends Controller
         $rabs = Rab::with(['pengaju', 'penyetuju'])->latest()->get();
         return view('rab.index', compact('rabs'));
     }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -105,24 +104,56 @@ class RabController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Rab $rab)
     {
         //
+        return view('rab.edit', compact('rab'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Rab $rab)
     {
         //
+        $validatedData = $request->validate([
+            'judul' => 'required|string|max:255',
+            'tanggal_dibuat' => 'required|date',
+        ]);
+
+        $rab->update($request->only(['judul', 'tanggal_dibuat']));
+
+        return redirect()->route('rab.index')->with('success_edit', 'Rab Berhasil Diperbaharui');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Rab $rab)
     {
         //
+        if ($rab->details()->exists()) {
+            return redirect()->route('rab.index')->with('error', 'Rab tidak dapat dihapus karena memiliki item detail');
+        }
+
+        $rab->delete();
+
+        return redirect()->route('rab.index')->with('success', 'Rab Berhasil Dihapus');
+    }
+
+    public function destroyDetail(RabDetail $rab_detail)
+    {
+        //
+        $rab = $rab_detail->rab;
+
+        if ($rab->status != 'Draft') {
+            return redirect()->route('rab.show', $rab->id)
+                ->with('error', 'Item tidak dapat dihapus karena RAB sudah ' .$rab->status. '!');
+        }
+
+        $rab_detail->delete();
+
+        return redirect()->route('rab.show', $rab->id)
+            ->with('success_detail', 'Data berhasil dihapus dari RAB!');
     }
 }

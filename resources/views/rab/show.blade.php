@@ -18,6 +18,14 @@
         </button>
     </div>
     @endif
+    @if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    @endif
 
     {{-- Kartu Info Header RAB --}}
     <div class="card card-outline card-primary mb-4">
@@ -57,6 +65,9 @@
                         <th>Ongkir</th>
                         <th>Asuransi</th>
                         <th>Total Harga</th>
+                        @if ($rab->status == 'Draft')
+                            <th>Aksi</th>
+                        @endif
                     </tr>
                 </thead>
                 <tbody> {{-- Tambahkan tbody --}}
@@ -68,10 +79,21 @@
                         <td class="text-end">Rp {{ number_format($detail->ongkir, 0, ',', '.') }}</td> {{-- Format harga --}}
                         <td class="text-end">Rp {{ number_format($detail->asuransi, 0, ',', '.') }}</td> {{-- Format harga --}}
                         <td class="text-end">Rp {{ number_format($detail->total_harga, 0, ',', '.') }}</td> {{-- Format harga --}}
+                        @if ($rab->status == 'Draft')
+                            <td class="text-center">
+                                <form action="{{ route('rab.details.destroy', $detail->id) }}" method="POST" style="display:inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus detail ini?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        @endif
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center">Belum ada detail barang ditambahkan.</td>
+                        <td colspan="{{ $rab->status == 'Draft' ? 7 : 6 }}" class="text-center">Belum ada detail barang ditambahkan.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -95,7 +117,7 @@
                         <label for="nama_barang_diajukan">Nama Barang</label>
                         <input type="text" name="nama_barang_diajukan" class="form-control @error('nama_barang_diajukan') is-invalid
                             @enderror" required>
-                        @error('jumlah')
+                        @error('nama_barang_diajukan')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
                         @enderror
                     </div>

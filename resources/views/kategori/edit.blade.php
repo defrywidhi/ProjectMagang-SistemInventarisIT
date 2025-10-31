@@ -17,7 +17,7 @@
                     @method('PUT')
                         <div class="form-group">
                             <label for="nama_kategori">Nama Kategori</label>
-                            <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" value="{{ $kategori->nama_kategori }}">
+                            <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" value="{{ old('nama_kategori', $kategori->nama_kategori) }}">
                             @error('nama_kategori')
                                 <div>
                                     {{ $message }}
@@ -26,7 +26,7 @@
                         </div>
                         <div class="form-group">
                             <label for="kode_kategori">Kode Kategori</label>
-                            <input type="text" class="form-control" id="kode_kategori" name="kode_kategori" value="{{ $kategori->kode_kategori }}">
+                            <input type="text" class="form-control" id="kode_kategori" name="kode_kategori" value="{{ old('kode_kategori', $kategori->kode_kategori) }}">
                             @error('kode_kategori')
                                 <div>
                                     {{ $message }}

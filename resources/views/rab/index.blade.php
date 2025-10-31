@@ -15,6 +15,12 @@
             @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
             @endif
+            @if (session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if (session('success_edit'))
+            <div class="alert alert-success">{{ session('success_edit') }}</div>
+            @endif
                 <table class="table table-bordered">
                     <thead>
                         <tr>
@@ -42,8 +48,8 @@
                             <td>{{ $item->catatan_approval ?? '_' }}</td>
                             <td class="text-center">
                                 <a href="{{ route('rab.show', $item->id) }}" class="btn btn-info">Detail</a><br>
-                                <a href="#" class="btn btn-warning">Edit</a>
-                                <form action="#" method="POST" >
+                                <a href="{{ route('rab.edit', $item->id) }}" class="btn btn-warning">Edit</a>
+                                <form action="{{ route('rab.destroy', $item->id) }}" method="POST" >
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">Hapus</button>

@@ -17,6 +17,7 @@ Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware(
 Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middleware('auth');
 Route::resource('rab', RabController::class)->middleware('auth');
 Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware('auth');
+Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail'])->name('rab.details.destroy')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {

@@ -22,7 +22,7 @@
                             <label for="barang_it_id">Nama Barang</label>
                             <select name="barang_it_id" id="barang_it_id" class="form-select">
                                 @foreach ( $barangs as $data_barang )
-                                <option value="{{ $data_barang->id }}" {{ $transaksi_masuk->barang_it_id == $data_barang->id ? 'selected' : '' }}>{{ $data_barang->nama_barang }}</option>
+                                <option value="{{ old('barang_it_id', $data_barang->id) }}" {{ $transaksi_masuk->barang_it_id == $data_barang->id ? 'selected' : '' }}>{{ $data_barang->nama_barang }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -30,25 +30,25 @@
                             <label for="supplier_id">Nama Supplier</label>
                             <select name="supplier_id" id="supplier_id" class="form-select">
                                 @foreach ( $suppliers as $data_supplier )
-                                <option value="{{ $data_supplier->id }}" {{ $transaksi_masuk->supplier_id == $data_supplier->id ? 'selected' : '' }}>{{ $data_supplier->nama_supplier }}</option>
+                                <option value="{{ old('supplier_id', $data_supplier->id) }}" {{ $transaksi_masuk->supplier_id == $data_supplier->id ? 'selected' : '' }}>{{ $data_supplier->nama_supplier }}</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="jumlah_masuk">Jumlah Barang</label>
-                            <input type="number" name="jumlah_masuk" id="jumlah_masuk" class="form-control" value="{{ $transaksi_masuk->jumlah_masuk }}">
+                            <input type="number" name="jumlah_masuk" id="jumlah_masuk" class="form-control" value="{{ old('jumlah_masuk', $transaksi_masuk->jumlah_masuk) }}">
                         </div>
                         <div class="form-group">
                             <label for="tanggal_masuk">Tanggal Masuk Barang</label>
-                            <input type="date" name="tanggal_masuk" id="tanggal_masuk" class="form-control" value="{{ $transaksi_masuk->tanggal_masuk }}">
+                            <input type="date" name="tanggal_masuk" id="tanggal_masuk" class="form-control" value="{{ old('tanggal_masuk', $transaksi_masuk->tanggal_masuk) }}">
                         </div>
                         <div class="form-group">
                             <label for="harga_satuan">Harga Satuan Barang</label>
-                            <input type="number" name="harga_satuan" id="harga_satuan" class="form-control" value="{{ $transaksi_masuk->harga_satuan }}">
+                            <input type="number" name="harga_satuan" id="harga_satuan" class="form-control" value="{{ old('harga_satuan', $transaksi_masuk->harga_satuan) }}">
                         </div>
                         <div class="form-group">
                             <label for="keterangan">keterangan</label>
-                            <input type="text" name="keterangan" id="keterangan" class="form-control" value="{{ $transaksi_masuk->keterangan }}">
+                            <input type="text" name="keterangan" id="keterangan" class="form-control" value="{{ old('keterangan', $transaksi_masuk->keterangan) }}">
                         </div>
 
                         <div class="form-group mt-3">
