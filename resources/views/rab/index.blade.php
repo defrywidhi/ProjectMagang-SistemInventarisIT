@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container">
-    <div class="card">
+    <div class="card card-outline card-success">
         <div class="card-header">
             <div class="">
                 <a href="{{ route('rab.create') }}" class="btn btn-primary">Tambah RAB Baru</a>
@@ -22,7 +22,7 @@
             <div class="alert alert-success">{{ session('success_edit') }}</div>
             @endif
                 <table class="table table-bordered">
-                    <thead>
+                    <thead class="table-secondary">
                         <tr>
                             <th>Kode RAB</th>
                             <th>Judul</th>
@@ -46,13 +46,19 @@
                             <td>{{ $item->tanggal_disetujui ?? '_' }}</td>
                             <td>{{ $item->penyetuju->name ?? '_' }}</td>
                             <td>{{ $item->catatan_approval ?? '_' }}</td>
-                            <td class="text-center">
-                                <a href="{{ route('rab.show', $item->id) }}" class="btn btn-info">Detail</a><br>
-                                <a href="{{ route('rab.edit', $item->id) }}" class="btn btn-warning">Edit</a>
-                                <form action="{{ route('rab.destroy', $item->id) }}" method="POST" >
+                            <td class="text-center p-0">
+                                <a href="{{ route('rab.show', $item->id) }}" class="btn btn-info btn-sm">
+                                    <i class="bi bi-info-circle"></i>
+                                </a>
+                                <a href="{{ route('rab.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form class="d-inline" action="{{ route('rab.destroy', $item->id) }}" method="POST" >
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>

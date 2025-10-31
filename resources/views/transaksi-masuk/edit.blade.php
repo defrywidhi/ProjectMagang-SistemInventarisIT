@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card card-primary">
+            <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title">Formulir Edit Transaksi Masuk</h3>
                 </div>
@@ -52,7 +52,7 @@
                         </div>
 
                         <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">Update Transaksi Masuk</button>
+                            <button type="submit" class="btn btn-warning">Update Transaksi Masuk</button>
                             <a href="{{ route('transaksi-masuk.index') }}" class="btn btn-secondary">Cancel</a>
                         </div>
                     </form>

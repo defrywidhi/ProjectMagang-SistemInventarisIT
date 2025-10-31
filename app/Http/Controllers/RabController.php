@@ -110,6 +110,17 @@ class RabController extends Controller
         return view('rab.edit', compact('rab'));
     }
 
+    public function editDetail(RabDetail $rab_detail)
+    {
+        //
+        if ($rab_detail->rab->status != 'Draft') {
+            return redirect()->route('rab.show', $rab_detail->rab_id)
+                ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
+        }
+
+        return view('rab_details.edit', compact('rab_detail'));
+    }
+
     /**
      * Update the specified resource in storage.
      */
@@ -125,6 +136,37 @@ class RabController extends Controller
 
         return redirect()->route('rab.index')->with('success_edit', 'Rab Berhasil Diperbaharui');
     }
+
+    public function updateDetail(Request $request, RabDetail $rab_detail)
+    {
+
+        if ($rab_detail->rab->status != 'Draft') {
+            return redirect()->route('rab.show', $rab_detail->rab_id)
+                ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
+        }
+
+        // 1. Validasi input dari form
+        $validatedData = $request->validate([
+            'nama_barang_diajukan' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:1',
+            'perkiraan_harga_satuan' => 'required|integer|min:1',
+            'ongkir' => 'nullable|integer|min:0',
+            'asuransi' => 'nullable|integer|min:0',
+        ]);
+
+        $jumlah = $validatedData['jumlah'];
+        $harga = $validatedData['perkiraan_harga_satuan'];
+        $ongkir = $request->input('ongkir', 0); // Ambil ongkir, default 0 jika null
+        $asuransi = $request->input('asuransi', 0); // Ambil asuransi, default 0 jika null
+
+        $validatedData['total_harga'] = ($jumlah * $harga) + $ongkir + $asuransi;
+
+        $rab_detail->update($validatedData);
+
+        return redirect()->route('rab.show', $rab_detail->rab_id)
+            ->with('success_detail', 'Item RAB Berhasil Diperbaharui');
+    }
+
 
     /**
      * Remove the specified resource from storage.
@@ -148,7 +190,7 @@ class RabController extends Controller
 
         if ($rab->status != 'Draft') {
             return redirect()->route('rab.show', $rab->id)
-                ->with('error', 'Item tidak dapat dihapus karena RAB sudah ' .$rab->status. '!');
+                ->with('error', 'Item tidak dapat dihapus karena RAB sudah ' . $rab->status . '!');
         }
 
         $rab_detail->delete();

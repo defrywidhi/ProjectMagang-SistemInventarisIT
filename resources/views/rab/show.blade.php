@@ -81,6 +81,9 @@
                         <td class="text-end">Rp {{ number_format($detail->total_harga, 0, ',', '.') }}</td> {{-- Format harga --}}
                         @if ($rab->status == 'Draft')
                             <td class="text-center">
+                                <a href="{{ route('rab.details.edit', $detail->id) }}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
                                 <form action="{{ route('rab.details.destroy', $detail->id) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')

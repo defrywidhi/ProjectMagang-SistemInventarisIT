@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card card-primary">
+            <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title">Formulir Edit Kategori</h3>
                 </div>
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-warning">Simpan</button>
                         <a href="{{ route('kategori.index') }}" class="btn btn-secondary">Batal</a>
                     </div>
                 </form>

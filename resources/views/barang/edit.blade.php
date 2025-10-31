@@ -7,7 +7,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card card-primary">
+            <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title">Edit Barang</h3>
                 </div>
@@ -93,7 +93,7 @@
                             <input type="file" class="form-control" id="gambar_barang" name="gambar_barang">
                         </div>
                         <div class="mt-3">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <button type="submit" class="btn btn-warning">Simpan</button>
                             <a href="{{ route('barang.index') }}" class="btn btn-secondary">Batal</a>
                         </div>
                     </form>

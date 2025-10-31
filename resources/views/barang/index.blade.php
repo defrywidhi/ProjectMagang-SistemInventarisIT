@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="container">
-    <div class="card">
+    <div class="card card-outline card-success">
         <div class="card-header">
             <a href="{{ route('barang.create') }}" class="btn btn-primary">Tambah Barang</a>
         </div>
@@ -27,7 +27,7 @@
             </div>
             @endif
             <table class="table table-bordered">
-                <thead>
+                <thead class="table-secondary">
                     <tr>
                         <th>Kategori</th>
                         <th>Nama Barang</th>
@@ -39,7 +39,7 @@
                         <th>Kondisi</th>
                         <th>Lokasi Penyimpanan</th>
                         <th>Gambar Barang</th>
-                        <th style="width: 150px;">Aksi</th>
+                        <th style="width: 100px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="align-middle">
@@ -61,13 +61,17 @@
                             Tidak Ada Gambar
                             @endif
                         </td>
-                        <td class="text-center">
-                            <a href="{{ route('barang.edit', $item->id) }}" class="btn btn-warning">Edit</a>
+                        <td class="text-center p-0">
+                            <a href="{{ route('barang.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
 
                             <form action="{{ route('barang.destroy', $item->id) }}" method="post" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger" onclick="return confirm('yakin menghapus file ini?')">Hapus</button>
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('yakin menghapus file ini?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
                             </form>
                         </td>
                     </tr>

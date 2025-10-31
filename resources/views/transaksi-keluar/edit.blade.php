@@ -8,7 +8,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card card-primary">
+            <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title">Formulir Edit Transaksi Keluar</h3>
                 </div>
@@ -37,7 +37,7 @@
                             <textarea class="form-control" id="keterangan" name="keterangan" rows="3">{{ $transaksi_keluar->keterangan }}</textarea>
                         </div>
                         <div class="form-group mt-3">
-                            <button type="submit" class="btn btn-primary">Submit</button>
+                            <button type="submit" class="btn btn-warning">Submit</button>
                             <a href="{{ route('transaksi-keluar.index') }}" class="btn btn-secondary">Batal</a>
                         </div>
                     </form>

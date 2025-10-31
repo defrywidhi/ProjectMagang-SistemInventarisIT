@@ -9,7 +9,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8">
-            <div class="card card-primary">
+            <div class="card card-warning">
                 <div class="card-header">
                     <h3 class="card-title">Formulir Edit Supplier</h3>
                 </div>
@@ -34,7 +34,7 @@
                             <input value="{{ old('email', $supplier-> email) }}" class="form-control" type="text" name="email" id="email">
                         </div>
                         <div class="mt-5 mb-3">
-                            <button type="submit" class="btn btn-primary">Kirim</button>
+                            <button type="submit" class="btn btn-warning">Kirim</button>
                             <a href="{{ route('supplier.index') }}" class="btn btn-secondary mx-2">Batal</a>
                         </div>
                     </form>

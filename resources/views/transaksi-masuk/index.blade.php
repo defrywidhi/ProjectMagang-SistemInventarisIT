@@ -5,7 +5,7 @@
 
 @section('content')
     <div class="container">
-        <div class="card">
+        <div class="card card-outline card-success">
             <div class="card-header">
                 <a href="{{ route('transaksi-masuk.create') }}" class="btn btn-primary">Tambah Transaksi Masuk</a>
             </div>
@@ -19,7 +19,7 @@
                     </div>
                 @endif
                 <table class="table table-bordered">
-                    <thead>
+                    <thead class="table-secondary">
                         <tr>
                             <th>Nama Barang</th>
                             <th>Supplier</th>
@@ -28,7 +28,7 @@
                             <th>Harga Satuan</th>
                             <th>Keterangan</th>
                             <th>User Input</th>
-                            <th style="width: 150px;">Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody class="align-middle">
@@ -41,12 +41,16 @@
                             <td>Rp {{ number_format($item->harga_satuan, 0, ',', '.') }}</td>
                             <td>{{ $item->keterangan ?? '_'}}</td>
                             <td>{{ $item->user->name }}</td>
-                            <td class="text-center">
-                                <a href="{{ route('transaksi-masuk.edit', $item->id) }}" class="btn btn-warning">Edit</a>
-                                <form action="{{ route('transaksi-masuk.destroy', $item->id) }}" method="POST" style="display: inline;">
+                            <td class="text-center p-0">
+                                <a href="{{ route('transaksi-masuk.edit', $item->id) }}" class="btn btn-warning btn-sm">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <form class="d-inline-block" action="{{ route('transaksi-masuk.destroy', $item->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">Hapus</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus transaksi ini?');">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
                                 </form>
                             </td>
                         </tr>

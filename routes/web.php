@@ -18,6 +18,8 @@ Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middlewar
 Route::resource('rab', RabController::class)->middleware('auth');
 Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware('auth');
 Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail'])->name('rab.details.destroy')->middleware('auth');
+Route::get('/rab/details/{rab_detail}/edit', [RabController::class, 'editDetail'])->name('rab.details.edit')->middleware('auth');
+Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])->name('rab.details.update')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {
