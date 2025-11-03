@@ -203,20 +203,62 @@ class RabController extends Controller
     // Function untuk mengajukan RAB
     public function ajukanApproval(Request $request, Rab $rab)
     {
-        if($rab->status != 'Draft'){
+        if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
             return redirect()->route('rab.show', $rab->id)
                 ->with('error', 'RAB tidak dapat diajukan karena sudah ' . $rab->status . '!');
         }
 
-        if($rab->details()->count() == 0){
+        if ($rab->details()->count() == 0) {
             return redirect()->route('rab.show', $rab->id)
                 ->with('error', 'RAB tidak dapat diajukan karena tidak memiliki rincian barang!');
         }
 
         $rab->status = 'Menunggu Approval';
+        $rab->approved_by = null;
+        $rab->tanggal_disetujui = null;
+        $rab->catatan_approval = null;
         $rab->save();
 
         return redirect()->route('rab.show', $rab->id)
             ->with('success', 'RAB Berhasil Diajukan');
+    }
+
+    // method untuk approval RAB
+    public function approveRAB(Request $request, Rab $rab)
+    {
+        if ($rab->status != 'Menunggu Approval') {
+            return redirect()->route('rab.show', $rab->id)
+            ->with('error', 'RAB tidak dapat disetujui');
+        }
+
+        $rab->status = 'Disetujui';
+        $rab->approved_by = Auth::id();
+        $rab->tanggal_disetujui = Carbon::now();
+        $rab->save();
+
+        return redirect()->route('rab.show', $rab->id)
+            ->with('success', 'RAB Berhasil Disetujui');
+    }
+
+    // metod untuk menolak RAB
+    public function rejectRAB(Request $request, Rab $rab)
+    {
+        if ($rab->status != 'Menunggu Approval') {
+            return redirect()->route('rab.show', $rab->id)
+            ->with('error', 'RAB tidak dapat ditolak');
+        }
+
+        $request->validate([
+            'catatan_approval' => 'required|string|max:255',
+        ]);
+
+        $rab->status = 'Ditolak';
+        $rab->approved_by = Auth::id();
+        $rab->tanggal_disetujui = Carbon::now();
+        $rab->catatan_approval = $request->catatan_approval;
+        $rab->save();
+
+        return redirect()->route('rab.show', $rab->id)
+            ->with('success', 'RAB Berhasil Ditolak');
     }
 }

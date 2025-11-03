@@ -22,6 +22,8 @@ Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail
 Route::get('/rab/details/{rab_detail}/edit', [RabController::class, 'editDetail'])->name('rab.details.edit')->middleware('auth');
 Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])->name('rab.details.update')->middleware('auth');
 Route::post('/rab/{rab}/ajukan', [RabController::class, 'ajukanApproval'])->name('rab.ajukan')->middleware('auth');
+Route::post('/rab/{rab}/approve', [RabController::class, 'approveRAB'])->name('rab.approve')->middleware('auth');
+Route::post('/rab/{rab}/reject', [RabController::class, 'rejectRAB'])->name('rab.reject')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {

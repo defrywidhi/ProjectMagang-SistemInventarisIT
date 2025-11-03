@@ -42,8 +42,8 @@
                 </div>
                 <div class="col-md-6">
                     <p><strong>Status : </strong> {{ $rab->status }}</p>
-                    <p><strong>Tanggal Disetujui : </strong> {{ $rab->tanggal_disetujui ?? '-' }}</p>
-                    <p><strong>Disetujui Oleh : </strong> {{ $rab->penyetuju->name ?? '-' }}</p>
+                    <p><strong>Tanggal ditinjau : </strong> {{ $rab->tanggal_disetujui ?? '-' }}</p>
+                    <p><strong>Ditinjau Oleh : </strong> {{ $rab->penyetuju->name ?? '-' }}</p>
                     <p><strong>Catatan Approval : </strong> {{ $rab->catatan_approval ?? '-' }}</p>
                 </div>
             </div>
@@ -65,8 +65,10 @@
                         <th>Ongkir</th>
                         <th>Asuransi</th>
                         <th>Total Harga</th>
-                        @if ($rab->status == 'Draft')
-                            <th>Aksi</th>
+
+                        {{-- Tombol Edit dan Hapus hanya ditampilkan jika status RAB adalah Draft atau Ditolak --}}
+                        @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
+                        <th>Aksi</th>
                         @endif
                     </tr>
                 </thead>
@@ -79,19 +81,21 @@
                         <td class="text-end">Rp {{ number_format($detail->ongkir, 0, ',', '.') }}</td> {{-- Format harga --}}
                         <td class="text-end">Rp {{ number_format($detail->asuransi, 0, ',', '.') }}</td> {{-- Format harga --}}
                         <td class="text-end">Rp {{ number_format($detail->total_harga, 0, ',', '.') }}</td> {{-- Format harga --}}
-                        @if ($rab->status == 'Draft')
-                            <td class="text-center">
-                                <a href="{{ route('rab.details.edit', $detail->id) }}" class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                                <form action="{{ route('rab.details.destroy', $detail->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus detail ini?')">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </form>
-                            </td>
+
+                        {{-- Tombol Edit dan Hapus hanya ditampilkan jika status RAB adalah Draft atau Ditolak --}}
+                        @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
+                        <td class="text-center">
+                            <a href="{{ route('rab.details.edit', $detail->id) }}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <form action="{{ route('rab.details.destroy', $detail->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Apakah Anda yakin ingin menghapus detail ini?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </td>
                         @endif
                     </tr>
                     @empty
@@ -102,25 +106,60 @@
                 </tbody>
             </table>
             <hr>
-            @if ($rab->status == 'Draft')
+
+            {{-- hanya ditampilkan jika status RAB adalah Draft atau Ditolak --}}
+            @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
+                        {{-- menampilkan pesan RAB ditolak --}}
+                    @if ($rab->status == 'Ditolak')
+                    <p class="text-danger ms-3">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <strong>RAB ini ditolak: {{ $rab->catatan_approval ?? 'Tidak ada catatan.' }}</strong>
+                    </p>
+                    @endif
+
+                        {{-- tombol untuk mengajukan RAB pertama kali dan ulang jika status adalah Ditolak --}}
                 <form action="{{ route('rab.ajukan', $rab->id) }}" method="post">
                     @csrf
-                    <button type="submit" class="btn btn-success ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
-                        <i class="bi bi-check-circle"></i> Ajukan Approval
+                    <button type="submit" class="btn btn-success btn-sm ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
+                        <i class="bi bi-check-circle"></i>
+                        {{ $rab->status == 'Ditolak' ? 'Ajukan Ulang' : 'Ajukan RAB' }}
                     </button>
                 </form>
-                <p class="text-muted d-inline-block ms-2 mt-2">RAB ini masih draft dan dapat diubah.</p>
-            @else
+
+                    {{-- status informasi terkai rab yang sedang di buka --}}
+                    @if ($rab->status == 'Draft')
+                    <p class="text-muted d-inline-block ms-2 mt-2">RAB ini masih draft dan dapat diubah.</p>
+                    @else
+                    <p class="text-muted d-inline-block ms-2 mt-2">Silahkan revisi ulang RAB.</p>
+                    @endif
+
+                {{-- informasi ketika rab menunggu approval --}}
+                @elseif ($rab->status == 'Menunggu Approval')
+                <p class="text-warning ms-2">
+                    <i class="bi bi-hourglass-split"></i>
+                    <strong>Rab ini sedang menunggu persetujuan.</strong>
+                </p>
+
+                <form action="{{ route('rab.approve', $rab->id) }}" method="post" class="d-inline-block ms-2">
+                    @csrf
+                    <button type="submit" class="btn btn-primary" onclick="return confirm('Yakin akan menyetujui RAB ini?')">
+                        <i class="bi bi-check-circle"></i>Setujui</button>
+                </form>
+
+                <button type="button" class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#modalTolakRAB">
+                    <i class="bi bi-x-lg"></i>Tolak</button>
+
+                @else
                 <p class="text-info ms-2">
-                <i class="bi bi-info-circle-fill"></i>
-                RAB ini sudah diajukan dan sedang dalam status: <strong>{{ $rab->status }}</strong>
+                    <i class="bi bi-info-circle-fill"></i>
+                    RAB ini sudah diajukan dan : <strong>{{ $rab->status }}</strong>
                 </p>
             @endif
         </div>
     </div>
 
 
-    @if ($rab->status == 'Draft')
+    @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
     {{-- Kartu Form Tambah Detail Barang (AKAN KITA BUAT LOGIKANYA NANTI) --}}
     <div class="card card-outline card-success mt-4">
         <div class="card-header">
@@ -179,8 +218,38 @@
                 </div>
             </form>
         </div>
-    </div>  
+    </div>
     @endif
 
 </div>
 @endsection
+
+
+@if ($rab->status == 'Menunggu Approval')
+<div class="modal fade" id="modalTolakRAB" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title" id="exampleModalLabel">Tolak Pengajuan RAB</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="{{ route('rab.reject' , $rab->id) }}" method="post">
+                @csrf
+                <div class="modal-body">
+                    <label for="catatan_approval">Catatan Penolakan</label>
+                    <textarea name="catatan_approval" id="catatan_approval" rows="3" class="form-control @error('catatan_approval') is-invalid @enderror" required></textarea>
+                    @error('catatan_approval')
+                    <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
+                    @enderror
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-danger">Tolak RAB</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif

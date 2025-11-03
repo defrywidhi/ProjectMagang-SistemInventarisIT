@@ -29,8 +29,8 @@
                         <th>Pengaju</th>
                         <th>Status</th>
                         <th>Tgl Dibuat</th>
-                        <th>Tgl Disetujui</th>
-                        <th>Disetujui Oleh</th>
+                        <th>Tgl ditinjau</th>
+                        <th>Ditinjau Oleh</th>
                         <th>Catatan</th>
                         <th style="width: 150px;">Aksi</th>
                     </tr>
@@ -46,7 +46,7 @@
                         <td>{{ $item->tanggal_disetujui ?? '_' }}</td>
                         <td>{{ $item->penyetuju->name ?? '_' }}</td>
                         <td>{{ $item->catatan_approval ?? '_' }}</td>
-                        @if ($item->status == 'Draft')
+                        @if ($item->status == 'Draft' || $item->status == 'Ditolak')
                         <td class="text-center p-0">
                             <a href="{{ route('rab.show', $item->id) }}" class="btn btn-info btn-sm">
                                 <i class="bi bi-info-circle"></i>
