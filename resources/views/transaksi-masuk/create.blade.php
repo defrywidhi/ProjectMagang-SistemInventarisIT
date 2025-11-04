@@ -35,6 +35,22 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label for="rab_id">Asal RAB (Opsional)</label>
+                            <select class="form-control mb-3" name="rab_id" id="rab_id">
+                                <option value="">Pilih RAB (Jika Ada)</option>
+                                @foreach ($rabs as $rab)
+                                <option value="{{ $rab->id }}" {{ $selected_rab_id == $rab->id ? 'selected' : '' }}>{{ $rab->kode_rab }} - {{ $rab->judul }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        {{-- Tempang Mengambil data JSON untuk mengisi data otomatis --}}
+                        <div class="form-group" id="rab-items-container" style="display: none;"> {{-- Awalnya tersembunyi --}}
+                            <label for="rab_detail_item">Pilih Item dari RAB (Contekan)</label>
+                            <select class="form-control mb-3" id="rab_detail_item">
+                                <option value="">Pilih barang sesuai di RAB</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label for="jumlah_masuk">Masukkan Jumlah Barang</label>
                             <input class="form-control mb-3" type="number" name="jumlah_masuk" id="jumlah_masuk" required @error('jumlah_masuk') is-invalid @enderror>
                             @error('jumlah_masuk')
@@ -80,3 +96,103 @@
         </div>
 
         @endsection
+
+
+        @push('scripts')
+        <script>
+            // Kita "tangkap" dulu semua elemen HTML yang akan kita pakai
+            const rabIdDropdown = document.getElementById('rab_id');
+            const rabDetailDropdown = document.getElementById('rab_detail_item');
+            const rabItemsContainer = document.getElementById('rab-items-container');
+            const jumlahInput = document.getElementById('jumlah_masuk');
+            const hargaInput = document.getElementById('harga_satuan');
+
+            // Kita buat "saluran telepon" (AJAX) untuk mengambil data
+            function fetchRabDetails(rabId) {
+                // Jika user memilih "-- Pilih RAB --" (kosong), kita sembunyikan lagi
+                if (!rabId) {
+                    rabItemsContainer.style.display = 'none';
+                    rabDetailDropdown.innerHTML = '<option value="">-- Pilih Item untuk Auto-fill --</option>';
+                    return;
+                }
+
+                // Siapkan URL "telepon"-nya. Kita ganti placeholder :id dengan ID rab yang asli
+                let url = '{{ route("rab.getDetailsJson", ["rab" => ":id"]) }}';
+                url = url.replace(':id', rabId);
+
+                // Tampilkan "Loading..." selagi menelepon
+                rabDetailDropdown.innerHTML = '<option value="">Loading...</option>';
+                rabItemsContainer.style.display = 'block'; // Tampilkan panggungnya
+
+                // Mulai "menelepon" ke server
+                fetch(url)
+                    .then(response => response.json()) // Ubah jawaban telepon (JSON) jadi data
+                    .then(details => { // 'details' adalah array data yang dikirim dari controller
+                        populateDetailsDropdown(details);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        rabDetailDropdown.innerHTML = '<option value="">Gagal memuat item</option>';
+                    });
+            }
+
+            // Fungsi ini untuk mengisi dropdown "contekan"
+            function populateDetailsDropdown(details) {
+                // Kosongkan pilihan lama
+                rabDetailDropdown.innerHTML = '<option value="">-- Pilih Item untuk Auto-fill --</option>';
+
+                // Simpan semua data detail di dropdown (biar gampang diambil nanti)
+                rabDetailDropdown.dataset.details = JSON.stringify(details);
+
+                // Loop semua data detail barang dan buat <option> baru
+                details.forEach(detail => {
+                    const option = document.createElement('option');
+                    option.value = detail.id;
+                    // Tampilkan nama, jumlah, dan harga di teks pilihan
+                    option.text = `${detail.nama_barang_diajukan} (Qty: ${detail.jumlah} @ Rp ${detail.perkiraan_harga_satuan})`;
+                    rabDetailDropdown.appendChild(option);
+                });
+            }
+
+            // === INI "SIHIR" TERAKHIRNYA ===
+            // Saat kita memilih item dari dropdown "contekan"...
+            rabDetailDropdown.addEventListener('change', function() {
+                const selectedDetailId = this.value; // Ambil ID item yang dipilih
+
+                // Jika memilih "-- Pilih Item --", kosongkan form
+                if (!selectedDetailId) {
+                    jumlahInput.value = '';
+                    hargaInput.value = '';
+                    return;
+                }
+
+                // Ambil data lengkap yang tadi kita simpan
+                const details = JSON.parse(rabDetailDropdown.dataset.details);
+                // Cari data detail yang ID-nya cocok
+                const selectedDetail = details.find(d => d.id == selectedDetailId);
+
+                if (selectedDetail) {
+                    // "Sihir!" Masukkan data ke form!
+                    jumlahInput.value = selectedDetail.jumlah;
+                    hargaInput.value = selectedDetail.perkiraan_harga_satuan;
+                }
+            });
+
+            // === INI "PEMICU"-NYA ===
+            // Pemicu 1: Saat halaman ini dimuat, langsung cek apakah RAB sudah terpilih
+            document.addEventListener('DOMContentLoaded', function() {
+                const selectedRabId = rabIdDropdown.value;
+                if (selectedRabId) {
+                    // Jika sudah terpilih (karena kita datang dari rab.show),
+                    // langsung "telepon" server untuk ambil datanya
+                    fetchRabDetails(selectedRabId);
+                }
+            });
+
+            // Pemicu 2: Saat user MENGGANTI pilihan di dropdown RAB
+            rabIdDropdown.addEventListener('change', function() {
+                // "Telepon" server untuk ambil data RAB yang baru dipilih
+                fetchRabDetails(this.value);
+            });
+        </script>
+        @endpush

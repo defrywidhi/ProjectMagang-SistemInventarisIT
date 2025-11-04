@@ -228,7 +228,7 @@ class RabController extends Controller
     {
         if ($rab->status != 'Menunggu Approval') {
             return redirect()->route('rab.show', $rab->id)
-            ->with('error', 'RAB tidak dapat disetujui');
+                ->with('error', 'RAB tidak dapat disetujui');
         }
 
         $rab->status = 'Disetujui';
@@ -245,7 +245,7 @@ class RabController extends Controller
     {
         if ($rab->status != 'Menunggu Approval') {
             return redirect()->route('rab.show', $rab->id)
-            ->with('error', 'RAB tidak dapat ditolak');
+                ->with('error', 'RAB tidak dapat ditolak');
         }
 
         $request->validate([
@@ -260,5 +260,17 @@ class RabController extends Controller
 
         return redirect()->route('rab.show', $rab->id)
             ->with('success', 'RAB Berhasil Ditolak');
+    }
+
+    /**
+     * Mengambil detail RAB sebagai JSON untuk AJAX.
+     */
+    public function getRabDetailsJson(Rab $rab)
+    {
+        // Kita ambil detailnya menggunakan relasi 'details' yang sudah kita buat
+        $details = $rab->details;
+
+        // Kita kembalikan sebagai JSON
+        return response()->json($details);
     }
 }

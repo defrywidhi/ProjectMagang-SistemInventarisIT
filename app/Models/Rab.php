@@ -22,15 +22,23 @@ class Rab extends Model
         'catatan_approval',
     ];
 
-    public function pengaju(){
+    public function pengaju()
+    {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function penyetuju(){
+    public function penyetuju()
+    {
         return $this->belongsTo(User::class, 'approved_by');
     }
 
-    public function details(){
+    public function details()
+    {
         return $this->hasMany(RabDetail::class);
+    }
+
+    public function transaksiMasuks()
+    {
+        return $this->hasMany(TransaksiMasuk::class);
     }
 }

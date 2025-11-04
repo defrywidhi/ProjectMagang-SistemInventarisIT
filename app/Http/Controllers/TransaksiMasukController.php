@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\BarangIT;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Rab;
+
+
 
 class TransaksiMasukController extends Controller
 {
@@ -24,13 +27,18 @@ class TransaksiMasukController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Request $request)
     {
-        //
         $barangs = BarangIT::all();
         $suppliers = Supplier::all();
 
-        return view('transaksi-masuk.create', compact('barangs', 'suppliers'));
+        // Ambil HANYA RAB yang sudah Disetujui
+        $rabs = Rab::where('status', 'Disetujui')->get();
+
+        // Ambil rab_id dari URL (query string)
+        $selected_rab_id = $request->input('rab_id');
+
+        return view('transaksi-masuk.create', compact('barangs', 'suppliers', 'rabs', 'selected_rab_id'));
     }
 
     /**
@@ -46,6 +54,7 @@ class TransaksiMasukController extends Controller
             'tanggal_masuk' => 'required|date',
             'harga_satuan' => 'required|integer|min:0',
             'keterangan' => 'nullable|string',
+            'rab_id' => 'nullable|exists:rabs,id'
         ]);
 
         $validateData['user_id'] = Auth::id();
@@ -101,12 +110,12 @@ class TransaksiMasukController extends Controller
         $barang_lama = BarangIT::find($barang_lama_id);
         $barang_baru = BarangIT::find($transaksi_masuk->barang_it_id);
 
-        if ($barang_lama){
+        if ($barang_lama) {
             $barang_lama->stok -= $jumlah_lama;
             $barang_lama->save();
         }
 
-        if ($barang_baru){
+        if ($barang_baru) {
             $barang_baru->stok += $transaksi_masuk->jumlah_masuk;
             $barang_baru->save();
         }
@@ -124,7 +133,7 @@ class TransaksiMasukController extends Controller
 
         $transaksi_masuk->delete();
 
-        if($barang){
+        if ($barang) {
             $barang->stok -= $transaksi_masuk->jumlah_masuk;
             $barang->save();
         }

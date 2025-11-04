@@ -9,7 +9,8 @@ use App\Http\Controllers\BarangITController;
 use App\Http\Controllers\TransaksiMasukController;
 use App\Http\Controllers\TransaksiKeluarController;
 use App\Http\Controllers\RabController;
-use App\Models\Rab;
+use App\Http\Controllers\DashboardController;
+use App\Models\RabDetail;
 
 Route::resource('kategori', KategoriController::class)->middleware('auth');
 Route::resource('supplier', SupplierController::class)->middleware('auth');
@@ -24,6 +25,7 @@ Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])-
 Route::post('/rab/{rab}/ajukan', [RabController::class, 'ajukanApproval'])->name('rab.ajukan')->middleware('auth');
 Route::post('/rab/{rab}/approve', [RabController::class, 'approveRAB'])->name('rab.approve')->middleware('auth');
 Route::post('/rab/{rab}/reject', [RabController::class, 'rejectRAB'])->name('rab.reject')->middleware('auth');
+Route::get('/rab/{rab}/get-details', [RabController::class, 'getRabDetailsJson'])->name('rab.getDetailsJson')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -32,9 +34,7 @@ Route::get('/', function () {
     return view('auth.login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

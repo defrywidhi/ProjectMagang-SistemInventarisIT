@@ -109,58 +109,61 @@
 
             {{-- hanya ditampilkan jika status RAB adalah Draft atau Ditolak --}}
             @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
-                        {{-- menampilkan pesan RAB ditolak --}}
-                    @if ($rab->status == 'Ditolak')
-                    <p class="text-danger ms-3">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                        <strong>RAB ini ditolak: {{ $rab->catatan_approval ?? 'Tidak ada catatan.' }}</strong>
-                    </p>
-                    @endif
+            {{-- menampilkan pesan RAB ditolak --}}
+            @if ($rab->status == 'Ditolak')
+            <p class="text-danger ms-3">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <strong>RAB ini ditolak: {{ $rab->catatan_approval ?? 'Tidak ada catatan.' }}</strong>
+            </p>
+            @endif
 
-                        {{-- tombol untuk mengajukan RAB pertama kali dan ulang jika status adalah Ditolak --}}
-                <form action="{{ route('rab.ajukan', $rab->id) }}" method="post">
-                    @csrf
-                    <button type="submit" class="btn btn-success btn-sm ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
-                        <i class="bi bi-check-circle"></i>
-                        {{ $rab->status == 'Ditolak' ? 'Ajukan Ulang' : 'Ajukan RAB' }}
-                    </button>
-                </form>
+            {{-- tombol untuk mengajukan RAB pertama kali dan ulang jika status adalah Ditolak --}}
+            <form action="{{ route('rab.ajukan', $rab->id) }}" method="post">
+                @csrf
+                <button type="submit" class="btn btn-success btn-sm ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
+                    <i class="bi bi-check-circle"></i>
+                    {{ $rab->status == 'Ditolak' ? 'Ajukan Ulang' : 'Ajukan RAB' }}
+                </button>
+            </form>
 
-                    {{-- status informasi terkai rab yang sedang di buka --}}
-                    @if ($rab->status == 'Draft')
-                    <p class="text-muted d-inline-block ms-2 mt-2">RAB ini masih draft dan dapat diubah.</p>
-                    @else
-                    <p class="text-muted d-inline-block ms-2 mt-2">Silahkan revisi ulang RAB.</p>
-                    @endif
+            {{-- status informasi terkai rab yang sedang di buka --}}
+            @if ($rab->status == 'Draft')
+            <p class="text-muted d-inline-block ms-2 mt-2">RAB ini masih draft dan dapat diubah.</p>
+            @else
+            <p class="text-muted d-inline-block ms-2 mt-2">Silahkan revisi ulang RAB.</p>
+            @endif
 
-                {{-- informasi ketika rab menunggu approval --}}
-                @elseif ($rab->status == 'Menunggu Approval')
-                <p class="text-warning ms-2">
-                    <i class="bi bi-hourglass-split"></i>
-                    <strong>Rab ini sedang menunggu persetujuan.</strong>
-                </p>
+            {{-- informasi ketika rab menunggu approval --}}
+            @elseif ($rab->status == 'Menunggu Approval')
+            <p class="text-warning ms-2">
+                <i class="bi bi-hourglass-split"></i>
+                <strong>Rab ini sedang menunggu persetujuan.</strong>
+            </p>
 
-                <form action="{{ route('rab.approve', $rab->id) }}" method="post" class="d-inline-block ms-2">
-                    @csrf
-                    <button type="submit" class="btn btn-primary" onclick="return confirm('Yakin akan menyetujui RAB ini?')">
-                        <i class="bi bi-check-circle"></i>Setujui</button>
-                </form>
+            <form action="{{ route('rab.approve', $rab->id) }}" method="post" class="d-inline-block ms-2">
+                @csrf
+                <button type="submit" class="btn btn-primary" onclick="return confirm('Yakin akan menyetujui RAB ini?')">
+                    <i class="bi bi-check-circle"></i>Setujui</button>
+            </form>
 
-                <button type="button" class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#modalTolakRAB">
-                    <i class="bi bi-x-lg"></i>Tolak</button>
+            <button type="button" class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#modalTolakRAB">
+                <i class="bi bi-x-lg"></i>Tolak</button>
 
-                @else
-                <p class="text-info ms-2">
-                    <i class="bi bi-info-circle-fill"></i>
-                    RAB ini sudah diajukan dan : <strong>{{ $rab->status }}</strong>
-                </p>
+            @else
+            @if ($rab->status == 'Disetujui')
+                <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
+            @endif
+            <p class="text-info m-2">
+                <i class="bi bi-info-circle-fill"></i>
+                RAB ini sudah diajukan dan : <strong>{{ $rab->status }}</strong>
+            </p>
             @endif
         </div>
     </div>
 
 
+    {{-- Kartu Form Tambah Detail Barang --}}
     @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
-    {{-- Kartu Form Tambah Detail Barang (AKAN KITA BUAT LOGIKANYA NANTI) --}}
     <div class="card card-outline card-success mt-4">
         <div class="card-header">
             <h3 class="card-title">Tambah Detail Barang Baru</h3>
@@ -225,6 +228,8 @@
 @endsection
 
 
+
+{{-- Modal (pop up) Tolak RAB --}}
 @if ($rab->status == 'Menunggu Approval')
 <div class="modal fade" id="modalTolakRAB" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog">

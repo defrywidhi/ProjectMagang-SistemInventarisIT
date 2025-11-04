@@ -17,17 +17,26 @@ class TransaksiMasuk extends Model
         'harga_satuan',
         'user_id',
         'keterangan',
+        'rab_id',
     ];
 
-    public function barang_it(){
+    public function barang_it()
+    {
         return $this->belongsTo(BarangIT::class);
     }
 
-    public function supplier(){
+    public function supplier()
+    {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
+    }
+
+    public function rab()
+    {
+        return $this->belongsTo(Rab::class);
     }
 }
