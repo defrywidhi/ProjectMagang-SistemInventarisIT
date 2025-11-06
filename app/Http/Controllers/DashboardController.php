@@ -7,31 +7,42 @@ use App\Models\BarangIT; // Butuh ini
 use App\Models\Rab; // Butuh ini
 use App\Models\TransaksiMasuk; // Butuh ini
 use Illuminate\Support\Facades\DB; // Butuh ini untuk query canggih
+use App\Models\Kategori; // Butuh ini
+
+
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Total Aset Barang (jenis barang unik)
+        // --- Data Info Box (Ini sudah benar) ---
         $totalBarang = BarangIT::count();
-
-        // 2. Stok Kritis (barang yg stoknya < stok_minimum)
         $stokKritis = BarangIT::whereColumn('stok', '<', 'stok_minimum')->count();
-
-        // 3. RAB Menunggu Persetujuan
         $rabMenunggu = Rab::where('status', 'Menunggu Approval')->count();
-
-        // 4. Total Transaksi Masuk Bulan Ini
         $transaksiBulanIni = TransaksiMasuk::whereMonth('tanggal_masuk', now()->month)
             ->whereYear('tanggal_masuk', now()->year)
             ->sum('jumlah_masuk');
 
-        // 5. Kirim semua data ini ke view dashboard
+        // --- Data untuk Grafik Pie Kategori (HAPUS ->toJson()) ---
+        $dataPie = Kategori::withCount('barangs')->get();
+        $pieLabels = $dataPie->pluck('nama_kategori'); // <--- HAPUS .toJson()
+        $pieData = $dataPie->pluck('barangs_count'); // <--- HAPUS .toJson()
+
+        // --- Data untuk Grafik Batang Stok (HAPUS ->toJson()) ---
+        $dataStok = BarangIT::orderBy('stok', 'desc')->take(5)->get();
+        $stokLabels = $dataStok->pluck('nama_barang'); // <--- HAPUS .toJson()
+        $stokData = $dataStok->pluck('stok'); // <--- HAPUS .toJson()
+
+        // --- Kirim semua data PHP murni ke view ---
         return view('dashboard', compact(
             'totalBarang',
             'stokKritis',
             'rabMenunggu',
-            'transaksiBulanIni'
+            'transaksiBulanIni',
+            'pieLabels',
+            'pieData',
+            'stokLabels',
+            'stokData'
         ));
     }
 }

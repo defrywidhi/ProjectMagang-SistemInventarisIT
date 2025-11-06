@@ -177,7 +177,7 @@
                 <div class="row">
                     <div class="col-md-4 form-group">
                         <label for="nama_barang_diajukan">Nama Barang</label>
-                        <input type="text" name="nama_barang_diajukan" class="form-control @error('nama_barang_diajukan') is-invalid
+                        <input value="{{ old('nama_barang_diajukan') }}" type="text" name="nama_barang_diajukan" class="form-control @error('nama_barang_diajukan') is-invalid
                             @enderror" required>
                         @error('nama_barang_diajukan')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -185,7 +185,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="jumlah">Jumlah</label>
-                        <input type="number" name="jumlah" class="form-control @error('jumlah') is-invalid
+                        <input value="{{ old('jumlah') }}" type="number" name="jumlah" class="form-control @error('jumlah') is-invalid
                             @enderror" required min="1" value="1">
                         @error('jumlah')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -193,7 +193,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="perkiraan_harga_satuan">Harga Satuan</label>
-                        <input type="number" name="perkiraan_harga_satuan" class="form-control @error('perkiraan_harga_satuan') is-invalid
+                        <input value="{{ old('perkiraan_harga_satuan') }}" type="number" name="perkiraan_harga_satuan" class="form-control @error('perkiraan_harga_satuan') is-invalid
                             @enderror" required min="0" value="0">
                         @error('perkiraan_harga_satuan')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -201,7 +201,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="ongkir">Ongkir</label>
-                        <input type="number" name="ongkir" class="form-control @error('ongkir') is-invalid
+                        <input value="{{ old('ongkir') }}" type="number" name="ongkir" class="form-control @error('ongkir') is-invalid
                             @enderror" min="0" value="0">
                         @error('ongkir')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -209,7 +209,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="asuransi">Asuransi</label>
-                        <input type="number" name="asuransi" class="form-control @error('asuransi') is-invalid
+                        <input value="{{ old('asuransi') }}" type="number" name="asuransi" class="form-control @error('asuransi') is-invalid
                             @enderror" min="0" value="0">
                         @error('asuransi')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}

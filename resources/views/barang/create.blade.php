@@ -55,14 +55,6 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label for="stok">Stok</label>
-                            <input @error('stok') is-invalid
-                            @enderror type="text" class="form-control" id="stok" name="stok" required>
-                            @error('stok')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        <div class="form-group">
                             <label for="stok_minimum">Stok Minimum</label>
                             <input @error('stok_minimum') is-invalid
                             @enderror type="text" class="form-control" id="stok_minimum" name="stok_minimum" required>
