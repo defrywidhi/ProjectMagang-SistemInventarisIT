@@ -103,6 +103,13 @@
                     </ul>
                 </li> {{-- Penutup </li> Transaksi --}}
 
+                <li class="nav-item">
+                    {{-- Tambahkan class 'active' jika route saat ini adalah 'dashboard' --}}
+                    <a href="{{ route('stok-opname.index') }}" class="nav-link {{ request()->is('stok-opname*') ? 'active' : '' }}">
+                        <i class="nav-icon bi bi-calendar-x"></i>
+                        <p>Stok Opname</p>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>
