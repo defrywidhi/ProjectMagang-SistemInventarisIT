@@ -118,6 +118,7 @@
             @endif
 
             {{-- tombol untuk mengajukan RAB pertama kali dan ulang jika status adalah Ditolak --}}
+            @can('buat rab')
             <form action="{{ route('rab.ajukan', $rab->id) }}" method="post">
                 @csrf
                 <button type="submit" class="btn btn-success btn-sm ms-2" onclick="return confirm('Apakah Anda yakin ingin mengajukan RAB ini untuk approval? Setelah diajukan, RAB tidak bisa diedit lagi.')">
@@ -125,6 +126,7 @@
                     {{ $rab->status == 'Ditolak' ? 'Ajukan Ulang' : 'Ajukan RAB' }}
                 </button>
             </form>
+            @endcan
 
             {{-- status informasi terkai rab yang sedang di buka --}}
             @if ($rab->status == 'Draft')
@@ -140,6 +142,7 @@
                 <strong>Rab ini sedang menunggu persetujuan.</strong>
             </p>
 
+            @can('setujui rab')
             <form action="{{ route('rab.approve', $rab->id) }}" method="post" class="d-inline-block ms-2">
                 @csrf
                 <button type="submit" class="btn btn-primary" onclick="return confirm('Yakin akan menyetujui RAB ini?')">
@@ -148,11 +151,14 @@
 
             <button type="button" class="btn btn-danger " data-bs-toggle="modal" data-bs-target="#modalTolakRAB">
                 <i class="bi bi-x-lg"></i>Tolak</button>
+            @endcan
 
             @else
             @if ($rab->status == 'Disetujui')
+                @can('input barang masuk')
                 <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
-            @endif
+                @endcan
+                @endif
             <p class="text-info m-2">
                 <i class="bi bi-info-circle-fill"></i>
                 RAB ini sudah diajukan dan : <strong>{{ $rab->status }}</strong>
@@ -163,6 +169,7 @@
 
 
     {{-- Kartu Form Tambah Detail Barang --}}
+    @role('admin')
     @if ($rab->status == 'Draft' || $rab->status == 'Ditolak')
     <div class="card card-outline card-success mt-4">
         <div class="card-header">
@@ -223,6 +230,7 @@
         </div>
     </div>
     @endif
+    @endrole
 
 </div>
 @endsection
