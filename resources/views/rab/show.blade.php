@@ -155,10 +155,13 @@
 
             @else
             @if ($rab->status == 'Disetujui')
-                @can('input barang masuk')
-                <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
-                @endcan
-                @endif
+            @can('input barang masuk')
+            <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
+            <a href="{{ route('rab.cetakPDF', $rab->id) }}" class="btn btn-info mt-2 ms-2" target="_blank">
+                <i class="bi bi-printer-fill"></i> Cetak PDF
+            </a>
+            @endcan
+            @endif
             <p class="text-info m-2">
                 <i class="bi bi-info-circle-fill"></i>
                 RAB ini sudah diajukan dan : <strong>{{ $rab->status }}</strong>

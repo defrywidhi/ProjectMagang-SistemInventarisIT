@@ -43,7 +43,7 @@ Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])-
 
 Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware(['auth', 'role:admin|manager']);
 
-
+Route::get('/rab/{rab}/cetak-pdf', [RabController::class, 'cetakPDF'])->name('rab.cetakPDF')->middleware('auth');
 
 Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index')->middleware(['auth', 'role:admin|auditor']);
 

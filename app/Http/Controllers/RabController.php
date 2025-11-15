@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\RabDetail;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class RabController extends Controller
 {
@@ -272,5 +273,32 @@ class RabController extends Controller
 
         // Kita kembalikan sebagai JSON
         return response()->json($details);
+    }
+
+    /**
+     * Membuat dan men-download RAB sebagai PDF.
+     */
+    public function cetakPDF(Rab $rab)
+    {
+        // 1. Pastikan RAB sudah disetujui
+        if ($rab->status != 'Disetujui') {
+            return redirect()->route('rab.show', $rab->id)->with('error', 'Hanya RAB yang sudah Disetujui yang bisa dicetak.');
+        }
+
+        // 2. Ambil data (kita load relasi biar tidak error)
+        $rab->load(['details', 'pengaju', 'penyetuju']);
+
+        // 3. Panggil "Mesin Cetak" (DomPDF)
+        $pdf = PDF::loadView('rab.rab_pdf', compact('rab'));
+
+        // 4. Buat nama file YANG AMAN (ganti '/' dengan '-')
+        $kode_rab_safe = str_replace('/', '-', $rab->kode_rab); // Ini akan jadi "RAB-2025-11-001"
+        $namaFile = 'RAB-' . $kode_rab_safe . '.pdf'; // Hasil: "RAB-RAB-2025-11-001.pdf"
+
+        // 5. Download file PDF-nya
+        return $pdf->download($namaFile);
+
+        // (Opsi: jika ingin ditampilkan di browser saja, ganti baris di atas dengan:)
+        // return $pdf->stream($namaFile);
     }
 }
