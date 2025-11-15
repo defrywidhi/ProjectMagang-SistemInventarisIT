@@ -18,7 +18,7 @@
                         </button>
                     </div>
                 @endif
-                <table class="table table-bordered">
+                <table id="tabel-transaksi-keluar" class="table table-bordered">
                     <thead class="table-secondary">
                         <tr>
                             <th>Nama Barang</th>
@@ -61,3 +61,15 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tabel-transaksi-keluar').DataTable({
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+        });
+    });
+</script>
+@endpush

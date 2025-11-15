@@ -21,7 +21,7 @@
             @if (session('success_edit'))
             <div class="alert alert-success">{{ session('success_edit') }}</div>
             @endif
-            <table class="table table-bordered">
+            <table id="tabel-rab" class="table table-bordered">
                 <thead class="table-secondary">
                     <tr>
                         <th>Kode RAB</th>
@@ -81,3 +81,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tabel-rab').DataTable({
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+        });
+    });
+</script>
+@endpush

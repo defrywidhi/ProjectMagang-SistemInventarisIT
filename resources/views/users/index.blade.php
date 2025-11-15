@@ -27,7 +27,7 @@
         </div>
         @endif
         <div class="card-body p-0 text-center table-responsive">
-            <table class="table table-bordered">
+            <table id="tabel-users" class="table table-bordered">
                 <thead class="table-secondary">
                     <tr>
                         <th>Nama User</th>
@@ -65,3 +65,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tabel-users').DataTable({
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+        });
+    });
+</script>
+@endpush

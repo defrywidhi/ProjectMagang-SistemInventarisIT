@@ -1,8 +1,8 @@
 <footer class="app-footer">
-    <div class="float-end d-none d-sm-inline">Sistem Inventory Rumah Sakit</div>
+    <div class="float-end d-none d-sm-inline">Sistem Inventaris Rumah Sakit</div>
     <strong>
-        Copyright &copy; 2024-{{ date('Y') }}&nbsp;
-        <a href="#" class="text-decoration-none">Tim IT</a>.
+        Copyright &copy; 2025-{{ date('Y') }}&nbsp;
+        <a target="_blank" href="https://github.com/defrywidhi" class="text-decoration-none">Defry Widhi</a>.
     </strong>
     All rights reserved.
 </footer>

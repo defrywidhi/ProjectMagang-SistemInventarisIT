@@ -26,7 +26,7 @@
                 </button>
             </div>
         @endif
-        <table class="table table-bordered">
+        <table id="tabel-kategori" class="table table-bordered">
             <thead class="table-secondary">
                 <tr>
                     <th>Nama Kategori</th>
@@ -63,3 +63,18 @@
 </div>
 </div>
 @endsection
+
+
+@push('scripts')
+<script>
+    // Saat dokumen siap (dimuat)
+    $(document).ready(function() {
+        // "Nyalakan" sihir DataTables di tabel dengan id 'tabel-kategori'
+        $('#tabel-kategori').DataTable({
+            "responsive": true, // Biar rapi di HP
+            "lengthChange": true, // Tampilkan pilihan 'show entries'
+            "autoWidth": false, // Biar lebarnya pas
+        });
+    });
+</script>
+@endpush

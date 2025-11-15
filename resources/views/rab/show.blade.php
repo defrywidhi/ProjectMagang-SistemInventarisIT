@@ -56,7 +56,7 @@
             <h3 class="card-title">Rincian Barang Diajukan</h3>
         </div>
         <div class="card-body p-0"> {{-- p-0 agar tabel mepet --}}
-            <table class="table table-bordered table-striped"> {{-- Tambah striped --}}
+            <table id="tabel-show-rab" class="table table-bordered table-striped"> {{-- Tambah striped --}}
                 <thead class="text-center">
                     <tr>
                         <th>Nama Barang</th>
@@ -195,7 +195,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="jumlah">Jumlah</label>
-                        <input value="{{ old('jumlah') }}" type="number" name="jumlah" class="form-control @error('jumlah') is-invalid
+                        <input value="{{ old('jumlah', '0') }}" type="number" name="jumlah" class="form-control @error('jumlah') is-invalid
                             @enderror" required min="1" value="1">
                         @error('jumlah')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -203,7 +203,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="perkiraan_harga_satuan">Harga Satuan</label>
-                        <input value="{{ old('perkiraan_harga_satuan') }}" type="number" name="perkiraan_harga_satuan" class="form-control @error('perkiraan_harga_satuan') is-invalid
+                        <input value="{{ old('perkiraan_harga_satuan', '0') }}" type="number" name="perkiraan_harga_satuan" class="form-control @error('perkiraan_harga_satuan') is-invalid
                             @enderror" required min="0" value="0">
                         @error('perkiraan_harga_satuan')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -211,7 +211,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="ongkir">Ongkir</label>
-                        <input value="{{ old('ongkir') }}" type="number" name="ongkir" class="form-control @error('ongkir') is-invalid
+                        <input value="{{ old('ongkir', '0') }}" type="number" name="ongkir" class="form-control @error('ongkir') is-invalid
                             @enderror" min="0" value="0">
                         @error('ongkir')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -219,7 +219,7 @@
                     </div>
                     <div class="col-md-2 form-group">
                         <label for="asuransi">Asuransi</label>
-                        <input value="{{ old('asuransi') }}" type="number" name="asuransi" class="form-control @error('asuransi') is-invalid
+                        <input value="{{ old('asuransi', '0') }}" type="number" name="asuransi" class="form-control @error('asuransi') is-invalid
                             @enderror" min="0" value="0">
                         @error('asuransi')
                         <div class="invalid-feedback">{{ $message }}</div> {{-- Gunakan $message --}}
@@ -269,3 +269,15 @@
     </div>
 </div>
 @endif
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tabel-show-rab').DataTable({
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+        });
+    });
+</script>
+@endpush

@@ -10,12 +10,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/styles/overlayscrollbars.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="{{ asset('dist/css/adminlte.css') }}" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     @stack('styles')
 </head>
 
 <body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
     <div class="app-wrapper">
-        
+
         @include('layouts._header')
 
         @include('layouts._sidebar')
@@ -43,14 +45,33 @@
                     @yield('content')
                 </div>
             </div>
-            </main>
+        </main>
         @include('layouts._footer')
 
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+
+    {{-- ---- MULAI GANTI DARI SINI ---- --}}
+    {{-- 1. JQUERY (Si "Motor" - WAJIB PALING ATAS) --}}
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+    {{-- 2. DEPENDENSI LAIN (Popper & Bootstrap) --}}
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+    {{-- 3. OVERLAY SCROLLBARS --}}
+    <script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.11.0/browser/overlayscrollbars.browser.es6.min.js" crossorigin="anonymous"></script>
+
+    {{-- 4. ADMINLTE (Si "Bodi Mobil") --}}
     <script src="{{ asset('dist/js/adminlte.js') }}"></script>
+
+    {{-- 5. DATATABLES (Si "Turbo") --}}
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
+    <script> $.fn.dataTable.ext.errMode = 'none'; </script>
+
+    {{-- 6. SCRIPT INISIALISASI (Script bawaan template) --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const sidebarWrapper = document.querySelector('.sidebar-wrapper');
@@ -65,6 +86,8 @@
             }
         });
     </script>
+
+    {{-- 7. SLOT UNTUK "MANTRA" KITA NANTI --}}
     @stack('scripts')
 </body>
 

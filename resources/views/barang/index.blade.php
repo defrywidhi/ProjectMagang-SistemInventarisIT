@@ -26,7 +26,7 @@
                 </button>
             </div>
             @endif
-            <table class="table table-bordered">
+            <table id="tabel-barang" class="table table-bordered">
                 <thead class="table-secondary">
                     <tr>
                         <th>Kategori</th>
@@ -86,3 +86,15 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    $(document).ready(function() {
+        $('#tabel-barang').DataTable({
+            "responsive": true, 
+            "lengthChange": true, 
+            "autoWidth": false,
+        });
+    });
+</script>
+@endpush
