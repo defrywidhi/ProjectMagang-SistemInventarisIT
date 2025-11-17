@@ -43,8 +43,6 @@ Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])-
 
 Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware(['auth', 'role:admin|manager']);
 
-Route::get('/rab/{rab}/cetak-pdf', [RabController::class, 'cetakPDF'])->name('rab.cetakPDF')->middleware('auth');
-
 Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index')->middleware(['auth', 'role:admin|auditor']);
 
 Route::get('/stok-opname/create', [StokOpnameController::class, 'create'])->name('stok-opname.create')->middleware(['auth', 'role:admin|auditor']);
@@ -62,6 +60,16 @@ Route::delete('/stok-opname/{stokOpname}', [StokOpnameController::class, 'destro
 Route::put('/stok-opname/{stokOpname}/save-details', [StokOpnameController::class, 'saveDetails'])->name('stok-opname.saveDetails')->middleware(['auth', 'role:admin|auditor']);
 
 Route::resource('users', UserController::class)->middleware(['auth', 'role:admin']);
+
+
+// Rute untuk export DATA
+Route::get('/rab/{rab}/cetak-pdf', [RabController::class, 'cetakPDF'])->name('rab.cetakPDF')->middleware('auth');
+
+Route::get('/barang/export/excel', [BarangITController::class, 'exportExcel'])->name('barang.exportExcel')->middleware(['auth', 'role:admin|manager|auditor']);
+
+Route::get('/transaksi-masuk/export/excel', [TransaksiMasukController::class, 'exportExcel'])->name('transaksi-masuk.exportExcel')->middleware(['auth', 'role:admin|manager|auditor']);
+
+
 
 Route::get('/', function () {
     if (Auth::check()) {

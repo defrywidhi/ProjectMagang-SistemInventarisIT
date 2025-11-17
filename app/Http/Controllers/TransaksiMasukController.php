@@ -8,6 +8,8 @@ use App\Models\BarangIT;
 use App\Models\Supplier;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Rab;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TransaksiMasukExport;
 
 
 
@@ -139,5 +141,14 @@ class TransaksiMasukController extends Controller
         }
 
         return redirect()->route('transaksi-masuk.index')->with('success', 'Data Transaksi Berhasil Dihapus');
+    }
+
+    /**
+     * Menangani ekspor data transaksi masuk ke Excel.
+     */
+    public function exportExcel()
+    {
+        $namaFile = 'laporan_pengadaan_' . date('Y-m-d') . '.xlsx';
+        return Excel::download(new TransaksiMasukExport, $namaFile);
     }
 }

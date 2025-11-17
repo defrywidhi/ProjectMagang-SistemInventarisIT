@@ -12,15 +12,36 @@
             </div>
         </div>
         <div class="card-body p-0 text-center table-responsive">
-            @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
+
+            <!-- Success Alert - Bootstrap 5 Version -->
+            @if(session('success'))
+            <div class="alert alert-success fade show d-flex align-items-center" role="alert">
+                <div class="me-2">
+                    <strong>Success!</strong> {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
-            @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
+            
+            @if(session('success_edit'))
+            <div class="alert alert-success fade show d-flex align-items-center" role="alert">
+                <div class="me-2">
+                    <strong>Success!</strong> {{ session('success_edit') }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
-            @if (session('success_edit'))
-            <div class="alert alert-success">{{ session('success_edit') }}</div>
+
+            <!-- Error Alert - Bootstrap 5 Version -->
+            @if(session('error'))
+            <div class="alert alert-danger fade show d-flex align-items-center" role="alert">
+                <div class="me-2">
+                    <strong>Error!</strong> {{ session('error') }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
             @endif
+
             <table id="tabel-rab" class="table table-bordered">
                 <thead class="table-secondary">
                     <tr>

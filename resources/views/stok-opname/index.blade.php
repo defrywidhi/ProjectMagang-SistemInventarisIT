@@ -10,22 +10,27 @@
             <a href="{{ route('stok-opname.create') }}" class="btn btn-primary">Tambah Stok Opname Baru</a>
         </div>
         <div class="card-body p-0 text-center table-responsive">
-            @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+
+            <!-- Success Alert - Bootstrap 5 Version -->
+            @if(session('success'))
+            <div class="alert alert-success fade show d-flex align-items-center" role="alert">
+                <div class="me-2">
+                    <strong>Success!</strong> {{ session('success') }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             @endif
-            @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+
+            <!-- Error Alert - Bootstrap 5 Version -->
+            @if(session('error'))
+            <div class="alert alert-danger fade show d-flex align-items-center" role="alert">
+                <div class="me-2">
+                    <strong>Error!</strong> {{ session('error') }}
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             @endif
+
             <table id="tabel-stok-opname" class="table table-bordered">
                 <thead class="table-secondary">
                     <tr>

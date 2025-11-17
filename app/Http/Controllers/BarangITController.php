@@ -8,6 +8,8 @@ use App\Models\Kategori;
 use Illuminate\Support\Facades\Storage;
 use App\Models\TransaksiKeluar;
 use App\Models\TransaksiMasuk;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\BarangExport;
 
 class BarangITController extends Controller
 {
@@ -54,7 +56,7 @@ class BarangITController extends Controller
 
         if ($request->hasFile('gambar_barang')) {
             $file = $request->file('gambar_barang');
-            $namaFile = time()."_".$file->getClientOriginalName();
+            $namaFile = time() . "_" . $file->getClientOriginalName();
             $file->storeAs('public/gambar_barang', $namaFile);
             $data['gambar_barang'] = $namaFile;
         }
@@ -80,7 +82,7 @@ class BarangITController extends Controller
         //
         $kategoris = Kategori::all();
 
-        return view('barang.edit', compact('barang','kategoris'));
+        return view('barang.edit', compact('barang', 'kategoris'));
     }
 
     /**
@@ -93,7 +95,7 @@ class BarangITController extends Controller
             'kategori_id' => 'required|exists:kategoris,id',
             'nama_barang' => 'required|string|max:255',
             'merk' => 'nullable|string|max:255',
-            'serial_number' => 'nullable|string|max:255|unique:barang_it,serial_number,'. $barang->id,
+            'serial_number' => 'nullable|string|max:255|unique:barang_it,serial_number,' . $barang->id,
             'deskripsi' => 'nullable|string',
             'stok_minimum' => 'required|integer|min:0',
             'kondisi' => 'required|in:Baru,Bekas,Rusak',
@@ -103,13 +105,13 @@ class BarangITController extends Controller
 
         $data = $request->except('gambar_barang');
 
-        if($request->hasFile('gambar_barang')){
-            if ($barang->gambar_barang){
-            Storage::delete('public/gambar_barang/'. $barang->gambar_barang);
+        if ($request->hasFile('gambar_barang')) {
+            if ($barang->gambar_barang) {
+                Storage::delete('public/gambar_barang/' . $barang->gambar_barang);
             }
-            
+
             $file = $request->file('gambar_barang');
-            $fileName = time()."-".$file->getClientOriginalName();
+            $fileName = time() . "-" . $file->getClientOriginalName();
             $file->storeAs('public/gambar_barang/', $fileName);
 
 
@@ -119,7 +121,6 @@ class BarangITController extends Controller
         $barang->update($data);
 
         return redirect()->route('barang.index')->with('success', 'data berhasil di perbaharui');
-
     }
 
     /**
@@ -128,7 +129,7 @@ class BarangITController extends Controller
     public function destroy(BarangIT $barang)
     {
         //
-        if ($barang->transaksiMasuks()->exists() || $barang->transaksiKeluars()->exists()){
+        if ($barang->transaksiMasuks()->exists() || $barang->transaksiKeluars()->exists()) {
             return redirect()->route('barang.index')->with('error', 'Barang ini memiliki riwayat transaksi, tidak dapat dihapus');
         }
 
@@ -139,5 +140,17 @@ class BarangITController extends Controller
         $barang->delete();
 
         return redirect()->route('barang.index')->with('success', 'Data Berhasil di hapus');
+    }
+
+    /**
+     * Menangani ekspor data barang ke Excel.
+     */
+    public function exportExcel()
+    {
+        // 1. Tentukan nama file
+        $namaFile = 'laporan_stok_barang_' . date('Y-m-d') . '.xlsx';
+
+        // 2. Panggil "mesin" Excel untuk men-download
+        return Excel::download(new BarangExport, $namaFile);
     }
 }
