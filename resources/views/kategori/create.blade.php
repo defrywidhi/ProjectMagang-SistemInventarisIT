@@ -16,11 +16,11 @@
                     @csrf
                         <div class="form-group">
                             <label for="nama_kategori">Nama Kategori</label>
-                            <input type="text" class="form-control" id="nama_kategori" name="nama_kategori" placeholder="Masukkan Nama Kategori" required>
+                            <input value="{{ old('nama_kategori') }}" type="text" class="form-control" id="nama_kategori" name="nama_kategori" placeholder="Masukkan Nama Kategori" required>
                         </div>
                         <div class="form-group">
                             <label for="kode_kategori">Kode Kategori</label>
-                            <input type="text" class="form-control" id="kode_kategori" name="kode_kategori" placeholder="Masukkan Kode Kategori (Contoh: LTP)" required>
+                            <input value="{{ old('kode_kategori') }}" type="text" class="form-control" id="kode_kategori" name="kode_kategori" placeholder="Masukkan Kode Kategori (Contoh: LTP)" required>
                         </div>
                     </div>
                     <div class="card-footer">

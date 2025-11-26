@@ -9,7 +9,7 @@
         <nav class="mt-2">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="navigation" data-accordion="false">
 
-                {{-- Menu Dashboard (Bisa dilihat semua role) --}}
+                {{-- Menu Dashboard --}}
                 <li class="nav-item">
                     <a href="{{ route('dashboard') }}" class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-speedometer"></i>
@@ -17,7 +17,7 @@
                     </a>
                 </li>
 
-                {{-- Menu Master Data (HANYA Admin) --}}
+                {{-- Menu Master Data --}}
                 @role('admin')
                 <li class="nav-item {{ request()->is('kategori*') || request()->is('supplier*') || request()->is('barang*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('kategori*') || request()->is('supplier*') || request()->is('barang*') ? 'active' : '' }}">
@@ -50,7 +50,7 @@
                 </li>
                 @endrole
 
-                {{-- Menu Transaksi (Admin, Teknisi) --}}
+                {{-- Menu Transaksi --}}
                 @role('admin|teknisi')
                 <li class="nav-item {{ request()->is('transaksi-masuk*') || request()->is('transaksi-keluar*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('transaksi-masuk*') || request()->is('transaksi-keluar*') ? 'active' : '' }}">
@@ -61,7 +61,6 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        {{-- Barang Masuk HANYA Admin --}}
                         @role('admin')
                         <li class="nav-item">
                             <a href="{{ route('transaksi-masuk.index') }}" class="nav-link {{ request()->is('transaksi-masuk*') ? 'active' : '' }}">
@@ -71,20 +70,17 @@
                         </li>
                         @endrole
 
-                        {{-- Barang Keluar (Admin atau Teknisi) --}}
-                        @role('admin|teknisi')
                         <li class="nav-item">
                             <a href="{{ route('transaksi-keluar.index') }}" class="nav-link {{ request()->is('transaksi-keluar*') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-circle"></i>
                                 <p>Barang Keluar</p>
                             </a>
                         </li>
-                        @endrole
                     </ul>
                 </li>
                 @endrole
 
-                {{-- Menu RAB (Admin atau Manajer) --}}
+                {{-- Menu RAB --}}
                 @role('admin|manager')
                 <li class="nav-item {{ request()->is('rab*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('rab*') ? 'active' : '' }}">
@@ -105,7 +101,7 @@
                 </li>
                 @endrole
 
-                {{-- Menu Stok Opname (Admin atau Auditor) --}}
+                {{-- Menu Stok Opname --}}
                 @role('admin|auditor')
                 <li class="nav-item">
                     <a href="{{ route('stok-opname.index') }}" class="nav-link {{ request()->is('stok-opname*') ? 'active' : '' }}">
@@ -115,6 +111,7 @@
                 </li>
                 @endrole
 
+                {{-- Menu User Management --}}
                 @role('admin')
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link {{ request()->is('users*') ? 'active' : '' }}">

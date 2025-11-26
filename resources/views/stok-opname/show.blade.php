@@ -59,20 +59,42 @@
                                 <tr>
                                     <td>{{ $detail->barangIt->nama_barang }}</td>
                                     <td class="text-center bg-light"><strong>{{ $detail->stok_sistem }}</strong></td>
-                                    <td>
-                                        {{-- INI JURUSNYA: Input dengan nama ARRAY --}}
+                                    <td class="text-center">
+                                        @if($stokOpname->status == 'Pending')
+                                        {{-- Jika Pending: Tampilkan Input --}}
                                         <input type="number"
                                             name="stok_fisik[{{ $detail->id }}]"
                                             class="form-control"
                                             value="{{ $detail->stok_fisik }}"
                                             required min="0">
+                                        @else
+                                        {{-- Jika Selesai: Tampilkan dengan warna berdasarkan perbandingan --}}
+                                        @php
+                                        if ($detail->stok_fisik == $detail->stok_sistem) {
+                                        $badgeColor = 'bg-success'; // Hijau - sama
+                                        } elseif ($detail->stok_fisik < $detail->stok_sistem) {
+                                            $badgeColor = 'bg-danger'; // Merah - kurang
+                                            } else {
+                                            $badgeColor = 'bg-primary'; // Biru - lebih
+                                            }
+                                            @endphp
+                                            <span class="badge {{ $badgeColor }}" style="font-size: 14px;">
+                                                {{ $detail->stok_fisik }}
+                                            </span>
+                                            @endif
                                     </td>
                                     <td>
+                                        @if($stokOpname->status == 'Pending')
+                                        {{-- Jika Pending: Tampilkan Input --}}
                                         <input type="text"
                                             name="keterangan_item[{{ $detail->id }}]"
                                             class="form-control"
                                             value="{{ $detail->keterangan_item }}"
                                             placeholder="Cth: Rusak, Hilang">
+                                        @else
+                                        {{-- Jika Selesai: Tampilkan Teks Biasa --}}
+                                        {{ $detail->keterangan_item ?? '-' }}
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty

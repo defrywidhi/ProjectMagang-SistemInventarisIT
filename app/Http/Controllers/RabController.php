@@ -114,9 +114,9 @@ class RabController extends Controller
     public function editDetail(RabDetail $rab_detail)
     {
         //
-        if ($rab_detail->rab->status != 'Draft') {
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
             return redirect()->route('rab.show', $rab_detail->rab_id)
-                ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
+                ->with('error', 'Item tidak dapat diedit karena RAB sudah ' . $rab_detail->rab->status . '!');
         }
 
         return view('rab_details.edit', compact('rab_detail'));
@@ -141,7 +141,7 @@ class RabController extends Controller
     public function updateDetail(Request $request, RabDetail $rab_detail)
     {
 
-        if ($rab_detail->rab->status != 'Draft') {
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
             return redirect()->route('rab.show', $rab_detail->rab_id)
                 ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
         }
@@ -189,7 +189,7 @@ class RabController extends Controller
         //
         $rab = $rab_detail->rab;
 
-        if ($rab->status != 'Draft') {
+        if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
             return redirect()->route('rab.show', $rab->id)
                 ->with('error', 'Item tidak dapat dihapus karena RAB sudah ' . $rab->status . '!');
         }
@@ -296,7 +296,7 @@ class RabController extends Controller
         $namaFile = 'RAB-' . $kode_rab_safe . '.pdf'; // Hasil: "RAB-RAB-2025-11-001.pdf"
 
         // 5. Download file PDF-nya
-        return $pdf->download($namaFile);
+        return $pdf->stream($namaFile);
 
         // (Opsi: jika ingin ditampilkan di browser saja, ganti baris di atas dengan:)
         // return $pdf->stream($namaFile);

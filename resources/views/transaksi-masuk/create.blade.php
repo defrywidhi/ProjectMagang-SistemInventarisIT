@@ -18,19 +18,26 @@
                         @csrf
                         <div class="form-group">
                             <label for="barang_it_id">Pilih Nama Barang</label>
-                            <select class="form-select mb-3" name="barang_it_id" id="barang_it_id" required>
-                                <option value="">Pilih Nama Barang</option>
-                                @foreach ($barangs as $item_barang)
-                                <option value="{{ $item_barang->id }}">{{ $item_barang -> nama_barang }} (Merk : {{ $item_barang->merk ?? '-' }})</option>
-                                @endforeach
-                            </select>
+                            <div class="form-group">
+                                <label for="barang_it_id">Pilih Nama Barang</label>
+                                <select class="form-select mb-3" name="barang_it_id" id="barang_it_id" required>
+                                    <option value=""> -- Pilih Nama Barang --</option>
+                                    @foreach ($barangs as $item_barang)
+                                    <option value="{{ $item_barang->id }}" {{ old('barang_it_id') == $item_barang->id ? 'selected' : '' }}>
+                                        {{ $item_barang->nama_barang }} (Merk: {{ $item_barang->merk ?? '-' }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="supplier_id">Pilih Supplier Barang</label>
                             <select name="supplier_id" id="supplier_id" class="mb-3 form-select" required>
-                                <option value="">Pilih Supplier Barang</option>
-                                @foreach ($suppliers as $item_supplier )
-                                <option value="{{ $item_supplier->id }}">{{ $item_supplier->nama_supplier }}</option>
+                                <option value=""> -- Pilih Supplier Barang --</option>
+                                @foreach ($suppliers as $item_supplier)
+                                <option value="{{ $item_supplier->id }}" {{ old('supplier_id') == $item_supplier->id ? 'selected' : '' }}>
+                                    {{ $item_supplier->nama_supplier }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -39,11 +46,13 @@
                             <select class="form-control mb-3" name="rab_id" id="rab_id">
                                 <option value="">Pilih RAB (Jika Ada)</option>
                                 @foreach ($rabs as $rab)
-                                <option value="{{ $rab->id }}" {{ $selected_rab_id == $rab->id ? 'selected' : '' }}>{{ $rab->kode_rab }} - {{ $rab->judul }}</option>
+                                <option value="{{ $rab->id }}" {{ old('rab_id', $selected_rab_id ?? '') == $rab->id ? 'selected' : '' }}>
+                                    {{ $rab->kode_rab }} - {{ $rab->judul }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
-                        {{-- Tempang Mengambil data JSON untuk mengisi data otomatis --}}
+                        {{-- Tempat Mengambil data JSON untuk mengisi data otomatis --}}
                         <div class="form-group" id="rab-items-container" style="display: none;"> {{-- Awalnya tersembunyi --}}
                             <label for="rab_detail_item">Pilih Item dari RAB (Contekan)</label>
                             <select class="form-control mb-3" id="rab_detail_item">
@@ -52,38 +61,30 @@
                         </div>
                         <div class="form-group">
                             <label for="jumlah_masuk">Masukkan Jumlah Barang</label>
-                            <input class="form-control mb-3" type="number" name="jumlah_masuk" id="jumlah_masuk" required @error('jumlah_masuk') is-invalid @enderror>
+                            <input value="{{ old('jumlah_masuk') }}" class="form-control mb-3 @error('jumlah_masuk') is-invalid @enderror" type="number" name="jumlah_masuk" id="jumlah_masuk" required>
                             @error('jumlah_masuk')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="tanggal_masuk">Tanggal Barang Masuk</label>
-                            <input class="form-control mb-3" type="date" name="tanggal_masuk" id="tanggal_masuk" required @error ('tanggal_masuk') is-invalid @enderror>
+                            <input value="{{ old('tanggal_masuk', date('Y-m-d')) }}" class="form-control mb-3 @error('tanggal_masuk') is-invalid @enderror" type="date" name="tanggal_masuk" id="tanggal_masuk" required>
                             @error('tanggal_masuk')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="harga_satuan">Masukkan Harga Satuan Barang</label>
-                            <input class="form-control mb-3" type="number" name="harga_satuan" id="harga_satuan" required @error ('harga_satuan') is-invalid @enderror>
+                            <input value="{{ old('harga_satuan') }}" class="form-control mb-3 @error('harga_satuan') is-invalid @enderror" type="number" name="harga_satuan" id="harga_satuan" required>
                             @error('harga_satuan')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="form-group">
                             <label for="keterangan">Keterangan Barang</label>
-                            <input class="form-control mb-3" type="text" name="keterangan" id="keterangan" @error('keterangan') is-invalid @enderror>
+                            <input value="{{ old('keterangan') }}" class="form-control mb-3 @error('keterangan') is-invalid @enderror" type="text" name="keterangan" id="keterangan">
                             @error('keterangan')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
+                            <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="mt-3">

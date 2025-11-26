@@ -7,7 +7,8 @@
 <div class="container">
     <div class="card card-outline card-success">
         <div class="card-header">
-            <a href="{{ route('kategori.create') }}" class="btn btn-primary">Tambah Kategori</a>
+            <a href="{{ route('kategori.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-circle-fill"></i> Tambah Kategori</a>
         </div>
         <div class="card-body p-0 text-center table-responsive">
 
@@ -15,7 +16,7 @@
             @if(session('success'))
             <div class="alert alert-success fade show d-flex align-items-center" role="alert">
                 <div class="me-2">
-                    <strong>Success!</strong> {{ session('success') }}
+                    <strong>Berhasil!</strong> {{ session('success') }}
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -25,7 +26,7 @@
             @if(session('error'))
             <div class="alert alert-danger fade show d-flex align-items-center" role="alert">
                 <div class="me-2">
-                    <strong>Error!</strong> {{ session('error') }}
+                    <strong>Gagal!</strong> {{ session('error') }}
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -72,13 +73,26 @@
 
 @push('scripts')
 <script>
-    // Saat dokumen siap (dimuat)
     $(document).ready(function() {
-        // "Nyalakan" sihir DataTables di tabel dengan id 'tabel-kategori'
         $('#tabel-kategori').DataTable({
-            "responsive": true, // Biar rapi di HP
-            "lengthChange": true, // Tampilkan pilihan 'show entries'
-            "autoWidth": false, // Biar lebarnya pas
+            "responsive": true,
+            "lengthChange": true,
+            "autoWidth": false,
+            
+            // --- INI PENGATURAN POSISINYA (DOM) ---
+            // Penjelasan kode:
+            // <'row' ...> : Membuat baris baru (seperti <div class="row">)
+            // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
+            // l : Length (Show entries)
+            // f : Filter (Search)
+            // t : Table (Tabel itu sendiri)
+            // i : Info (Showing 1 to 10...)
+            // p : Pagination (Previous - Next)
+            
+            "dom":  
+                "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
         });
     });
 </script>

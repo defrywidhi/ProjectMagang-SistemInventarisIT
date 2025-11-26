@@ -18,9 +18,11 @@
                         <div class="form-group">
                             <label for="kategori_id">Kategori</label>
                             <select class="form-select" name="kategori_id" id="kategori_id" required>
-                                <option value="">Pilih Kategori</option>
+                                <option value=""> -- Pilih Kategori --</option>
                                 @foreach ( $kategoris as $item )
-                                <option value="{{ old('kategori_id', $item -> id) }}" {{ $barang->kategori_id == $item->id ? 'selected' : '' }}>{{ $item -> nama_kategori }}</option>
+                                <option value="{{ $item->id }}" {{ old('kategori_id', $barang->kategori_id) == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama_kategori }}
+                                </option>
                                 @endforeach
                             </select>
                         </div>
@@ -70,10 +72,11 @@
                         </div>
                         <div class="form-group">
                             <label for="kondisi">Kondisi</label>
-                            <select value="{{ old('kondisi', $barang->kondisi) }}" class="form-select" name="kondisi" id="kondisi" required>
-                                <option value="Baru">Baru</option>
-                                <option value="Bekas">Bekas</option>
-                                <option value="Rusak">Rusak</option>
+                            <select class="form-select" name="kondisi" id="kondisi" required>
+                                <option value=""> -- Pilih Kondisi --</option>
+                                <option value="Baru" {{ old('kondisi', $barang->kondisi) == 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="Bekas" {{ old('kondisi', $barang->kondisi) == 'Bekas' ? 'selected' : '' }}>Bekas</option>
+                                <option value="Rusak" {{ old('kondisi', $barang->kondisi) == 'Rusak' ? 'selected' : '' }}>Rusak</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -86,9 +89,9 @@
                         <div class="form-group">
                             <label for="gambar_barang">Gambar Barang</label>
                             @if ($barang->gambar_barang)
-                                <div>
+                            <div>
                                 <img src="{{ asset('storage/gambar_barang/'.$barang->gambar_barang) }}" alt="gambar barang" class="ratio ratio-1x1 mb-3">
-                                </div>
+                            </div>
                             @endif
                             <input type="file" class="form-control" id="gambar_barang" name="gambar_barang">
                         </div>

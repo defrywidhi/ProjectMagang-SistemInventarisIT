@@ -14,7 +14,7 @@
     @if(session('success'))
     <div class="alert alert-success fade show d-flex align-items-center" role="alert">
         <div class="me-2">
-            <strong>Success!</strong> {{ session('success') }}
+            <strong>Berhasil!</strong> {{ session('success') }}
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -24,7 +24,7 @@
     @if(session('error'))
     <div class="alert alert-danger fade show d-flex align-items-center" role="alert">
         <div class="me-2">
-            <strong>Error!</strong> {{ session('error') }}
+            <strong>Gagal!</strong> {{ session('error') }}
         </div>
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -59,7 +59,7 @@
             <h3 class="card-title">Rincian Barang Diajukan</h3>
         </div>
         <div class="card-body p-0"> {{-- p-0 agar tabel mepet --}}
-            <table id="tabel-show-rab" class="table table-bordered table-striped"> {{-- Tambah striped --}}
+            <table id="tabel-detail-rab" class="table table-bordered table-striped"> {{-- Tambah striped --}}
                 <thead class="text-center">
                     <tr>
                         <th>Nama Barang</th>
@@ -103,7 +103,10 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ $rab->status == 'Draft' ? 7 : 6 }}" class="text-center">Belum ada detail barang ditambahkan.</td>
+                        {{-- Ganti ini --}}
+                        <td colspan="{{ ($rab->status == 'Draft' || $rab->status == 'Ditolak') ? 7 : 6 }}" class="text-center">
+                            Belum ada detail barang ditambahkan.
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -160,7 +163,7 @@
             @if ($rab->status == 'Disetujui')
             @can('input barang masuk')
             <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
-            <a href="{{ route('rab.cetakPDF', $rab->id) }}" class="btn btn-info mt-2 ms-2" target="_blank">
+            <a href="{{ route('rab.cetakPDF', $rab->id) }}" class="btn btn-info ms-2" target="_blank">
                 <i class="bi bi-printer-fill"></i> Cetak PDF
             </a>
             @endcan
@@ -276,10 +279,16 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#tabel-show-rab').DataTable({
+        $('#tabel-detail-rab').DataTable({
             "responsive": true,
             "lengthChange": true,
             "autoWidth": false,
+            
+            // --- PERHATIKAN 'px-3' YANG ABANG TAMBAHKAN ---
+            "dom":  
+                "<'row mb-3 mt-3 px-3'<'col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
+                "<'row'<'col-sm-12'tr>>" +
+                "<'row mb-3 mt-3 px-3'<'col-sm-12 col-md-5'i><'col-sm-12 col-md-7'p>>",
         });
     });
 </script>

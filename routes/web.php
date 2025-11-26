@@ -69,7 +69,11 @@ Route::get('/barang/export/excel', [BarangITController::class, 'exportExcel'])->
 
 Route::get('/transaksi-masuk/export/excel', [TransaksiMasukController::class, 'exportExcel'])->name('transaksi-masuk.exportExcel')->middleware(['auth', 'role:admin|manager|auditor']);
 
+// Rute untuk Cetak Nota Transaksi Masuk
+Route::get('/transaksi-masuk/{transaksi_masuk}/cetak', [TransaksiMasukController::class, 'cetakInvoice'])->name('transaksi-masuk.cetakInvoice')->middleware('auth');
 
+// Rute Cetak Bukti Keluar
+Route::get('/transaksi-keluar/{transaksi_keluar}/cetak', [TransaksiKeluarController::class, 'cetakBuktiKeluar'])->name('transaksi-keluar.cetakBuktiKeluar')->middleware('auth');
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -86,4 +90,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

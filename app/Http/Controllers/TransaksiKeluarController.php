@@ -7,7 +7,7 @@ use App\Models\BarangIT;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\TransaksiKeluar;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 class TransaksiKeluarController extends Controller
@@ -148,5 +148,20 @@ class TransaksiKeluarController extends Controller
         // Perbaiki typo 'succsess'
         return redirect()->route('transaksi-keluar.index')
             ->with('success', 'Transaksi keluar berhasil dihapus.');
+    }
+
+    /**
+     * Cetak Bukti Barang Keluar
+     */
+    public function cetakBuktiKeluar(TransaksiKeluar $transaksi_keluar)
+    {
+        // Pakai variabel $transaksi biar pendek di view
+        $transaksi = $transaksi_keluar;
+        
+        $pdf = Pdf::loadView('transaksi-keluar.bukti_keluar_pdf', compact('transaksi'));
+        
+        $namaFile = 'Bukti-Keluar-' . $transaksi->id . '.pdf';
+        
+        return $pdf->stream($namaFile);
     }
 }

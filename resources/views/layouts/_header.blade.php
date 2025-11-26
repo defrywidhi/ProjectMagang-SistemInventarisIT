@@ -10,14 +10,20 @@
         <ul class="navbar-nav ms-auto">
             <li class="nav-item dropdown user-menu">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                    <img src="{{ asset('dist/assets/img/user2-160x160.jpg') }}" class="user-image rounded-circle shadow" alt="User Image" />
+                    {{-- GANTI FOTO JADI DINAMIS --}}
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random"
+                        class="user-image rounded-circle shadow" alt="User Image" />
+
                     <span class="d-none d-md-inline">{{ Auth::user()->name }}</span>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
                     <li class="user-header text-bg-primary">
-                        <img src="{{ asset('dist/assets/img/user2-160x160.jpg') }}" class="rounded-circle shadow" alt="User Image" />
+                        {{-- FOTO DI DALAM DROPDOWN JUGA DIGANTI --}}
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=random&color=fff"
+                            class="rounded-circle shadow" alt="User Image" />
                         <p>
-                            {{ Auth::user()->name }} - {{ Auth::user()->getRoleNames()->first()}}
+                            {{-- TAMBAH PENGAMAN ROLE --}}
+                            {{ Auth::user()->name }} - {{ Auth::user()->getRoleNames()->first() ?? 'User' }}
                             <small>Dibuat sejak {{ Auth::user()->created_at->format('F d, Y') }}</small>
                         </p>
                     </li>
@@ -28,8 +34,8 @@
                             <button type="submit" class="btn btn-default btn-flat">Sign out</button>
                         </form>
                     </li>
-                    </ul>
+                </ul>
             </li>
-            </ul>
-        </div>
+        </ul>
+    </div>
 </nav>

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Rab;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransaksiMasukExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -150,5 +151,23 @@ class TransaksiMasukController extends Controller
     {
         $namaFile = 'laporan_pengadaan_' . date('Y-m-d') . '.xlsx';
         return Excel::download(new TransaksiMasukExport, $namaFile);
+    }
+
+    /**
+     * Cetak Nota Transaksi Masuk
+     */
+    public function cetakInvoice(TransaksiMasuk $transaksi_masuk)
+    {
+        // Kita pakai nama variabel $transaksi biar singkat di view
+        $transaksi = $transaksi_masuk;
+        
+        // Load view PDF
+        $pdf = Pdf::loadView('transaksi-masuk.invoice_pdf', compact('transaksi'));
+
+        // Nama file saat didownload
+        $namaFile = 'Invoice-TRX-' . $transaksi->id . '.pdf';
+
+        // Preview di browser (stream)
+        return $pdf->stream($namaFile);
     }
 }

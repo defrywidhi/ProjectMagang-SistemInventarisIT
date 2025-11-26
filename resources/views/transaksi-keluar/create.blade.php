@@ -16,15 +16,23 @@
                         @csrf
                         <div class="form-group">
                             <label for="barang_it_id">Barang Yang Keluar</label>
-                            <select class="form-control" id="barang_it_id" name="barang_it_id" required>
+                            <select class="form-control @error('barang_it_id') is-invalid @enderror" id="barang_it_id" name="barang_it_id" required>
+                                <option value=""> -- Pilih Barang --</option>
                                 @foreach($barangs as $item)
-                                <option value="{{ $item->id }}">{{ $item->nama_barang }} (Stok: {{ $item->stok }})</option>
+                                <option value="{{ $item->id }}" {{ old('barang_it_id') == $item->id ? 'selected' : '' }}>
+                                    {{ $item->nama_barang }} (Stok: {{ $item->stok }})
+                                </option>
                                 @endforeach
                             </select>
+                            @error('barang_it_id')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="jumlah_keluar">Jumlah Barang Keluar</label>
-                            <input @error('jumlah_keluar') is-invalid @enderror type="number" class="form-control" id="jumlah_keluar" name="jumlah_keluar" required>
+                            <input value="{{ old('jumlah_keluar') }}" @error('jumlah_keluar') is-invalid @enderror type="number" class="form-control" id="jumlah_keluar" name="jumlah_keluar" required>
                             @error('jumlah_keluar')
                             <div class="invalid-feedback">
                                 {{ $message }}
@@ -33,11 +41,24 @@
                         </div>
                         <div class="form-group">
                             <label for="tanggal_keluar">Tanggal Keluar</label>
-                            <input type="date" class="form-control" id="tanggal_keluar" name="tanggal_keluar" required>
+                            <input class="form-control @error('tanggal_keluar') is-invalid @enderror"
+                                type="date"
+                                name="tanggal_keluar"
+                                id="tanggal_keluar"
+                                value="{{ old('tanggal_keluar', date('Y-m-d')) }}"
+                                required>
+                            @error('tanggal_keluar')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
-                            <label for="keterangan">keterangan</label>
-                            <input type="textarea" class="form-control" id="keterangan" name="keterangan">
+                            <label for="keterangan">Keterangan</label>
+                            <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan" name="keterangan" rows="3">{{ old('keterangan') }}</textarea>
+                            @error('keterangan')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                            @enderror
                         </div>
                         <div class="form-group mt-3">
                             <button type="submit" class="btn btn-primary">Submit</button>
@@ -47,4 +68,6 @@
                 </div>
             </div>
         </div>
-        @endsection
+    </div>
+</div>
+@endsection

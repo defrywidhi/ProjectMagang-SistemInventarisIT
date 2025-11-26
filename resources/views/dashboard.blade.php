@@ -5,103 +5,248 @@
 
 @section('content')
 <div class="container-fluid">
-    {{-- Baris untuk Info Box --}}
-    <div class="row">
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box text-bg-primary">
-                <div class="inner">
-                    <h3>{{ $totalBarang }}</h3>
-                    <p>Total Barang</p>
-                </div>
-                <i class="small-box-icon bi bi-box-seam-fill" aria-hidden="true"></i>
-                <a href="{{ route('barang.index') }}"
-                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                    Lihat Detail <i class="bi bi-link-45deg"></i>
-                </a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box text-bg-danger">
-                <div class="inner">
-                    <h3>{{ $stokKritis }}</h3>
-                    <p>Barang Stok Kritis</p>
-                </div>
-                <i class="small-box-icon bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-                <a href="{{ route('barang.index') }}"
-                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                    Lihat Detail <i class="bi bi-link-45deg"></i>
-                </a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box text-bg-warning text-white">
-                <div class="inner">
-                    <h3>{{ $rabMenunggu }}</h3>
-                    <p>RAB Menunggu Persetujuan</p>
-                </div>
-                <i class="small-box-icon bi bi-file-earmark-text-fill" aria-hidden="true"></i>
-                <a href="{{ route('rab.index') }}"
-                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                    Lihat Detail <i class="bi bi-link-45deg"></i>
-                </a>
-            </div>
-        </div>
-        <div class="col-lg-3 col-6">
-            <!-- small box -->
-            <div class="small-box text-bg-success">
-                <div class="inner">
-                    <h3>{{ $transaksiBulanIni }}</h3>
-                    <p>Barang Masuk Bulan Ini</p>
-                </div>
-                <i class="small-box-icon bi bi-cart-plus-fill" aria-hidden="true"></i>
-                <a href="{{ route('transaksi-masuk.index') }}"
-                    class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
-                    Lihat Detail <i class="bi bi-link-45deg"></i>
-                </a>
-            </div>
-        </div>
-    </div>
 
-    {{-- Baris untuk Grafik/Charts --}}
+{{-- =========================================================== --}}
+    {{-- BARIS 1: INFO BOXES (Statistik Utama) --}}
+    {{-- =========================================================== --}}
     <div class="row">
-        {{-- Grafik Pie Kategori --}}
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Aset Berdasarkan Kategori</h3>
-                </div>
-                <div class="card-body">
-                    {{-- Ini adalah panggung "kanvas" untuk melukis --}}
-                    <canvas id="pieChartKategori" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+        
+        {{-- BOX 1: TOTAL ASET BARANG --}}
+        <div class="col-12 col-sm-6 col-md-3">
+            {{-- Tambah 'position-relative' biar link-nya pas --}}
+            <div class="info-box position-relative">
+                <span class="info-box-icon text-bg-info shadow-sm">
+                    <i class="bi bi-box-seam-fill"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Total Aset Barang</span>
+                    <span class="info-box-number">{{ $totalBarang }} <small>Jenis</small></span>
+                    
+                    {{-- INI "JEMBATAN" LINK-NYA (Tidak terlihat tapi bikin kotak bisa diklik) --}}
+                    <a href="{{ route('barang.index') }}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
 
-        {{-- Grafik Batang Stok Terbanyak --}}
-        <div class="col-lg-6">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">5 Barang Stok Terbanyak</h3>
+        {{-- BOX 2: STOK KRITIS --}}
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box position-relative">
+                <span class="info-box-icon text-bg-danger shadow-sm">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Stok Kritis</span>
+                    <span class="info-box-number">{{ $stokKritis }} <small>Item</small></span>
+                    
+                    {{-- Link ke Master Barang --}}
+                    <a href="{{ route('barang.index') }}" class="stretched-link"></a>
                 </div>
-                <div class="card-body">
-                    <canvas id="barChartStok" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+            </div>
+        </div>
+
+        {{-- BOX 3: RAB MENUNGGU --}}
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box position-relative">
+                <span class="info-box-icon text-bg-warning shadow-sm">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">RAB Menunggu</span>
+                    <span class="info-box-number">{{ $rabMenunggu }} <small>Dokumen</small></span>
+                    
+                    {{-- Link ke Daftar RAB --}}
+                    <a href="{{ route('rab.index') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        {{-- BOX 4: BELANJA BULAN INI --}}
+        <div class="col-12 col-sm-6 col-md-3">
+            <div class="info-box position-relative">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="bi bi-cart-check-fill"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Belanja Bulan Ini</span>
+                    <span class="info-box-number"><small>Rp</small> {{ number_format($pengeluaranBulanIni, 0, ',', '.') }}</span>
+                    
+                    {{-- Link ke Transaksi Masuk --}}
+                    <a href="{{ route('transaksi-masuk.index') }}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
     </div>
 
-
+    {{-- =========================================================== --}}
+    {{-- BARIS 2: MONTHLY RECAP REPORT (Grafik & Progress) --}}
+    {{-- =========================================================== --}}
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-md-12">
             <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title">Laporan Rekapitulasi Tahunan ({{ date('Y') }})</h5>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                            <i class="bi bi-dash-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="card-body">
-                    <h5 class="card-title">Selamat Datang, {{ Auth::user()->name }}!</h5>
-                    <p class="card-text">
-                        Ini adalah halaman dashboard utama Sistem Inventory Rumah Sakit.
-                    </p>
+                    <div class="row">
+                        {{-- GRAFIK GARIS (KIRI) --}}
+                        <div class="col-md-8">
+                            <p class="text-center"><strong>Tren Transaksi: 1 Jan - 31 Des {{ date('Y') }}</strong></p>
+                            <div class="chart">
+                                <canvas id="salesChart" style="height: 180px;"></canvas>
+                            </div>
+                        </div>
+
+                        {{-- PROGRESS BARS (KANAN) --}}
+                        <div class="col-md-4">
+                            <p class="text-center"><strong>Top 5 Barang Keluar (Terlaris)</strong></p>
+
+                            @forelse($topBarangKeluar as $item)
+                            @php
+                            // Hitung persentase bar
+                            $persen = ($item->total_keluar / $totalSemuaKeluar) * 100;
+                            // Warna bar beda-beda dikit biar cantik
+                            $colors = ['primary', 'success', 'warning', 'danger', 'info'];
+                            $color = $colors[$loop->index % 5];
+                            @endphp
+                            <div class="progress-group">
+                                {{ $item->barang_it->nama_barang ?? 'Item Terhapus' }}
+                                <span class="float-end"><b>{{ $item->total_keluar }}</b>/{{ $totalSemuaKeluar }}</span>
+                                <div class="progress progress-sm">
+                                    <div class="progress-bar text-bg-{{ $color }}" style="width: {{ $persen }}%"></div>
+                                </div>
+                            </div>
+                            @empty
+                            <p class="text-center text-muted">Belum ada transaksi keluar.</p>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+
+                {{-- FOOTER SUMMARY --}}
+                <div class="card-footer">
+                    <div class="row">
+                        <div class="col-sm-3 col-6">
+                            <div class="description-block border-end">
+                                <span class="description-percentage text-success"><i class="bi bi-caret-up-fill"></i> Aset</span>
+                                <h5 class="description-header">Rp {{ number_format($nilaiAset, 0, ',', '.') }}</h5>
+                                <span class="description-text">ESTIMASI NILAI ASET</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="description-block border-end">
+                                <span class="description-percentage text-warning"><i class="bi bi-caret-left-fill"></i> Aktivitas</span>
+                                <h5 class="description-header">{{ $totalTransaksiTahunIni }}</h5>
+                                <span class="description-text">TOTAL TRANSAKSI TAHUN INI</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="description-block border-end">
+                                <span class="description-percentage text-success"><i class="bi bi-caret-up-fill"></i> Masuk</span>
+                                <h5 class="description-header">{{ array_sum($chartMasuk) }}</h5>
+                                <span class="description-text">TOTAL BARANG MASUK</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-3 col-6">
+                            <div class="description-block">
+                                <span class="description-percentage text-danger"><i class="bi bi-caret-down-fill"></i> Keluar</span>
+                                <h5 class="description-header">{{ array_sum($chartKeluar) }}</h5>
+                                <span class="description-text">TOTAL BARANG KELUAR</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- =========================================================== --}}
+    {{-- BARIS 3: AKTIVITAS GUDANG (Latest Orders & Products) --}}
+    {{-- =========================================================== --}}
+    <div class="row mt-3">
+
+        {{-- KIRI: TABEL TRANSAKSI KELUAR TERAKHIR --}}
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Riwayat Barang Keluar Terakhir</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table m-0 table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Tanggal</th>
+                                    <th>Barang</th>
+                                    <th>Jumlah</th>
+                                    <th>Teknisi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($latestKeluar as $out)
+                                <tr>
+                                    <td>{{ \Carbon\Carbon::parse($out->tanggal_keluar)->format('d M Y') }}</td>
+                                    <td>{{ $out->barang_it->nama_barang ?? '-' }}</td>
+                                    <td><span class="badge text-bg-danger">- {{ $out->jumlah_keluar }}</span></td>
+                                    <td>{{ $out->user->name ?? 'System' }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">Belum ada data.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer clearfix">
+                    <a href="{{ route('transaksi-keluar.create') }}" class="btn btn-sm btn-danger float-start">Catat Barang Keluar</a>
+                    <a href="{{ route('transaksi-keluar.index') }}" class="btn btn-sm btn-secondary float-end">Lihat Semua</a>
+                </div>
+            </div>
+        </div>
+
+        {{-- KANAN: LIST BARANG MASUK TERAKHIR (Recently Added) --}}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Barang Masuk Terakhir</h3>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card pl-2 pr-2 mt-2">
+                        @forelse($latestMasuk as $in)
+                        <li class="item">
+                            <div class="product-img">
+                                {{-- Gambar Barang (atau default) --}}
+                                @if($in->barang_it && $in->barang_it->gambar_barang)
+                                <img src="{{ asset('storage/gambar_barang/' . $in->barang_it->gambar_barang) }}" alt="Img" class="img-size-50">
+                                @else
+                                <img src="{{ asset('dist/assets/img/default-150x150.png') }}" alt="Default" class="img-size-50">
+                                @endif
+                            </div>
+                            <div class="product-info">
+                                <a href="#" class="product-title">
+                                    {{ $in->barang_it->nama_barang ?? 'Item Dihapus' }}
+                                    <span class="badge text-bg-success float-end me-2">+{{ $in->jumlah_masuk }}</span>
+                                </a>
+                                <span class="product-description">
+                                    Supplier: {{ $in->supplier->nama_supplier ?? '-' }} <br>
+                                    <small class="text-muted"><i class="bi bi-clock"></i> {{ \Carbon\Carbon::parse($in->tanggal_masuk)->diffForHumans() }}</small>
+                                </span>
+                            </div>
+                        </li>
+                        @empty
+                        <li class="item p-3 text-center text-muted">Belum ada barang masuk.</li>
+                        @endforelse
+                    </ul>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{{ route('transaksi-masuk.index') }}" class="uppercase">Lihat Semua Transaksi Masuk</a>
                 </div>
             </div>
         </div>
@@ -110,88 +255,73 @@
 </div>
 @endsection
 
-
 @push('scripts')
-{{-- Kita panggil library Chart.js (jika belum ada di adminlte.js) --}}
-{{-- AdminLTE 4 biasanya sudah include ini, tapi untuk jaga-jaga: --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
-    // Pastikan DOM sudah siap
     document.addEventListener('DOMContentLoaded', function() {
 
-        // ==================
-        // 1. "MELUKIS" PIE CHART KATEGORI
-        // ==================
+        // --- DATA DARI CONTROLLER ---
+        // Kita terima data array PHP dan ubah jadi JSON
+        const chartMasuk = @json(array_values($chartMasuk));
+        const chartKeluar = @json(array_values($chartKeluar));
 
-        // Ambil "Kanvas" (Panggung) dari HTML
-        const pieCanvas = document.getElementById('pieChartKategori').getContext('2d');
+        // Label Bulan (Jan - Des)
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
-        // Ambil "Data Lukisan" (Labels) dari PHP
+        // --- KONFIGURASI CHART ---
+        const salesChartCanvas = document.getElementById('salesChart').getContext('2d');
 
-        const pieLabels = @json($pieLabels ?? []);
+        const salesChartData = {
+            labels: months,
+            datasets: [{
+                    label: 'Barang Masuk',
+                    backgroundColor: 'rgba(40, 167, 69, 0.9)', // Hijau
+                    borderColor: 'rgba(40, 167, 69, 0.8)',
+                    data: chartMasuk,
+                    fill: false,
+                    tension: 0.4 // Biar garisnya agak melengkung (smooth)
+                },
+                {
+                    label: 'Barang Keluar',
+                    backgroundColor: 'rgba(220, 53, 69, 0.9)', // Merah
+                    borderColor: 'rgba(220, 53, 69, 0.8)',
+                    data: chartKeluar,
+                    fill: false,
+                    tension: 0.4
+                }
+            ]
+        };
 
-        // Ambil "Data Lukisan" (Data) dari PHP
-        const pieData = @json($pieData ?? []);
-
-        // Buat palet warna acak (opsional, biar cantik)
-        const pieColors = pieData.map(() => `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`);
-
-        // Buat lukisan baru
-        new Chart(pieCanvas, {
-            type: 'pie', // Tipe lukisannya: Pie
-            data: {
-                labels: pieLabels, // Judul/label setiap potongan pie
-                datasets: [{
-                    label: 'Jumlah Barang',
-                    data: pieData, // Angka/data setiap potongan pie
-                    backgroundColor: pieColors, // Warna setiap potongan
-                }]
+        const salesChartOptions = {
+            maintainAspectRatio: false,
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'top'
+                }
             },
-            options: {
-                responsive: true, // Biar bisa menyesuaikan ukuran
-                maintainAspectRatio: false,
-            }
-        });
-
-        // ==================
-        // 2. "MELUKIS" BAR CHART STOK
-        // ==================
-
-        // Ambil "Kanvas" (Panggung) dari HTML
-        const barCanvas = document.getElementById('barChartStok').getContext('2d');
-
-        // Ambil "Data Lukisan" (Labels) dari PHP
-        const stokLabels = @json($stokLabels ?? []);
-
-        // Ambil "Data Lukisan" (Data) dari PHP
-        const stokData = @json($stokData ?? []);
-
-        // Buat lukisan baru
-        new Chart(barCanvas, {
-            type: 'bar', // Tipe lukisannya: Batang (Bar)
-            data: {
-                labels: stokLabels, // Nama barang di sumbu X
-                datasets: [{
-                    label: 'Jumlah Stok',
-                    data: stokData, // Angka/tinggi batang di sumbu Y
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)', // Warna batang
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true // Mulai hitungan dari 0
+            scales: {
+                x: {
+                    grid: {
+                        display: false
                     }
                 },
-                plugins: {
-                    legend: {
-                        display: false // Sembunyikan legenda (label 'Jumlah Stok')
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        display: true,
+                        color: 'rgba(0,0,0,0.05)'
                     }
                 }
             }
+        };
+
+        // RENDER CHART
+        new Chart(salesChartCanvas, {
+            type: 'line',
+            data: salesChartData,
+            options: salesChartOptions
         });
     });
 </script>
