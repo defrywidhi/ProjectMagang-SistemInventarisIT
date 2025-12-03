@@ -13,3 +13,6 @@ Artisan::command('inspire', function () {
  * Mendaftarkan jadwal (scheduler) aplikasi.
  */
 Schedule::command('app:cek-stok-menipis')->dailyAt('01:00');
+// ---- TAMBAHKAN BARIS INI ----
+// Jalankan setiap bulan, pada tanggal 1, jam 09:00 pagi
+Schedule::command('app:reminder-stok-opname')->monthlyOn(1, '09:00');

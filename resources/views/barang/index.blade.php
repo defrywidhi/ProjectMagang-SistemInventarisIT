@@ -36,7 +36,7 @@
             @endif
 
             {{-- Tambahkan table-sm, text-nowrap, dan style font-size --}}
-            <table id="tabel-barang" class="table table-bordered table-sm text-nowrap" style="font-size: 0.9rem;">
+            <table id="tabel-barang" class="table table-bordered table-sm text-nowrap" style="font-size: 1rem;">
                 <thead class="table-secondary">
                     <tr>
                         <th>Kategori</th>
@@ -60,9 +60,26 @@
                         <td>{{ $item -> merk ?? '_'}}</td>
                         <td>{{ $item -> serial_number ?? '_'}}</td>
                         <td>{{ $item -> deskripsi ?? '_'}}</td>
-                        <td>{{ $item -> stok }}</td>
-                        <td>{{ $item -> stok_minimum }}</td>
-                        <td>{{ $item -> kondisi }}</td>
+                        <td>
+                            @if ($item -> stok > $item -> stok_minimum)
+                                <span class="badge bg-success"> {{ $item -> stok }}</span>
+                            @elseif ($item -> stok == $item -> stok_minimum)
+                                <span class="badge bg-warning"> {{ $item -> stok }}</span>
+                            @else
+                                <span class="badge bg-danger"> {{ $item -> stok }}</span>
+                            @endif
+                        </td>
+                        <td><span class="badge bg-warning">{{ $item -> stok_minimum }}</td>
+                        <td>@if ($item->kondisi == 'Baru')
+                            <span class="badge bg-success"> {{ $item -> kondisi }}</span>
+                        @elseif ($item->kondisi == 'Bekas') 
+                            <span class="badge bg-warning"> {{ $item -> kondisi }}</span>
+                        @elseif ($item->kondisi == 'Rusak')
+                            <span class="badge bg-danger"> {{ $item -> kondisi }}</span>
+                        @else
+                            <span class="badge bg-secondary"> {{ $item -> kondisi }}</span>
+                        @endif
+                        </td>
                         <td>{{ $item -> lokasi_penyimpanan ?? '_'}}</td>
                         <td>
                             @if($item->gambar_barang)

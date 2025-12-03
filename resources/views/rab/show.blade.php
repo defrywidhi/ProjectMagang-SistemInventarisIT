@@ -160,13 +160,29 @@
             @endcan
 
             @else
+
             @if ($rab->status == 'Disetujui')
+            {{-- CEK: Apakah RAB ini sudah pernah diproses ke Transaksi Masuk? --}}
+            @if ($rab->transaksiMasuks()->exists())
+            {{-- JIKA SUDAH ADA: Tampilkan Info --}}
+            <div class="alert alert-success d-inline-block p-2 mt-2 ms-2 mb-0">
+                <i class="bi bi-check-circle-fill"></i> Sudah Masuk Stok
+            </div>
+            {{-- Opsional: Tampilkan link ke transaksinya --}}
+            {{-- <a href="{{ route('transaksi-masuk.index') }}" class="btn btn-outline-success btn-sm mt-2 ms-1">Lihat Transaksi</a> --}}
+            @else
+            {{-- JIKA BELUM ADA: Tampilkan Tombol Catat --}}
             @can('input barang masuk')
-            <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2"><i class="bi bi-cart-plus-fill"></i>Catat Pembelian</a>
+                <a href="{{ route('transaksi-masuk.create', ['rab_id' => $rab->id]) }}" class="btn btn-success ms-2">
+                    <i class="bi bi-cart-plus-fill"></i> Catat Pembelian
+                </a>
+            @endcan
+            @endif
+
+            {{-- Tombol Cetak PDF (Selalu Muncul) --}}
             <a href="{{ route('rab.cetakPDF', $rab->id) }}" class="btn btn-info ms-2" target="_blank">
                 <i class="bi bi-printer-fill"></i> Cetak PDF
             </a>
-            @endcan
             @endif
             <p class="text-info m-2">
                 <i class="bi bi-info-circle-fill"></i>

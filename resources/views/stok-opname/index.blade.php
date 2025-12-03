@@ -46,7 +46,15 @@
                     @forelse ( $stokOpnames as $item )
                     <tr>
                         <td>{{ $item->tanggal_opname }}</td>
-                        <td>{{ $item->status }}</td>
+                        <td>
+                            @if ($item->status == 'Pending')
+                                <span class="badge bg-warning">{{ $item->status }}</span>
+                            @elseif ($item->status == 'Selesai')
+                                <span class="badge bg-success">{{ $item->status }}</span>
+                            @else
+                                <span class="badge bg-danger">{{ $item->status }}</span>
+                            @endif
+                        </td>
                         <td>{{ $item->auditor->name }}</td>
                         <td>{{ $item->catatan ?? '_'}}</td>
                         <td class="text-center p-0">

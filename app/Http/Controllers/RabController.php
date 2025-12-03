@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\RabDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Mail; // <-- Wajib ada
+use App\Models\User; // <-- Wajib ada buat cari email Manajer
 
 class RabController extends Controller
 {
@@ -174,14 +176,25 @@ class RabController extends Controller
      */
     public function destroy(Rab $rab)
     {
-        //
-        if ($rab->details()->exists()) {
-            return redirect()->route('rab.index')->with('error', 'Rab tidak dapat dihapus karena memiliki item detail');
+        // 1. Ambil user yang sedang login
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // 2. Validasi Status & Role
+        // Cek apakah user BUKAN admin?
+        if (!$user->hasRole('admin')) {
+            // Jika bukan admin, dia HANYA boleh menghapus status Draft atau Ditolak
+            if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
+                return redirect()->route('rab.index')
+                    ->with('error', 'Anda tidak memiliki izin menghapus RAB yang sudah diproses.');
+            }
         }
 
+        // 3. Lakukan Penghapusan
+        // Kita biarkan detail terhapus otomatis oleh database (Cascade On Delete)
         $rab->delete();
 
-        return redirect()->route('rab.index')->with('success', 'Rab Berhasil Dihapus');
+        return redirect()->route('rab.index')->with('success', 'RAB Berhasil Dihapus');
     }
 
     public function destroyDetail(RabDetail $rab_detail)
@@ -220,8 +233,29 @@ class RabController extends Controller
         $rab->catatan_approval = null;
         $rab->save();
 
-        return redirect()->route('rab.show', $rab->id)
-            ->with('success', 'RAB Berhasil Diajukan');
+        // ---- TAMBAHKAN KODE INI (KIRIM EMAIL KE SEMUA MANAJER) ----
+        // Cari semua user yang punya role 'manager'
+        $managers = User::role('manager')->get();
+
+        // ...
+        foreach ($managers as $manager) {
+            Mail::send('emails.rab-ajukan', ['rab' => $rab], function ($message) use ($manager, $rab) {
+                $message->to($manager->email);
+
+                // LOGIKA SUBJECT DINAMIS
+                if ($rab->catatan_approval) {
+                    $subject = '[REVISI] Menunggu Approval: ' . $rab->judul;
+                } else {
+                    $subject = '[BARU] Menunggu Approval: ' . $rab->judul;
+                }
+
+                $message->subject($subject);
+            });
+        }
+        // ...
+        // -----------------------------------------------------------
+
+        return redirect()->route('rab.show', $rab->id)->with('success', 'RAB berhasil diajukan! Notifikasi terkirim ke Manajer.');
     }
 
     // method untuk approval RAB
@@ -236,6 +270,12 @@ class RabController extends Controller
         $rab->approved_by = Auth::id();
         $rab->tanggal_disetujui = Carbon::now();
         $rab->save();
+
+        // Kirim email ke pengaju
+        Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+            $message->to($rab->pengaju->email);
+            $message->subject('RAB DISETUJUI: ' . $rab->kode_rab);
+        });
 
         return redirect()->route('rab.show', $rab->id)
             ->with('success', 'RAB Berhasil Disetujui');
@@ -258,6 +298,12 @@ class RabController extends Controller
         $rab->tanggal_disetujui = Carbon::now();
         $rab->catatan_approval = $request->catatan_approval;
         $rab->save();
+
+        // Kirim email ke pengaju
+        Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+            $message->to($rab->pengaju->email);
+            $message->subject('RAB DITOLAK: ' . $rab->kode_rab);
+        });
 
         return redirect()->route('rab.show', $rab->id)
             ->with('success', 'RAB Berhasil Ditolak');

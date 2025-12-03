@@ -3,34 +3,88 @@
 <head>
     <title>RAB {{ $rab->kode_rab }}</title>
     <style>
-        body { font-family: sans-serif; }
-        h1 { text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        @page { size: A4; margin: 1cm 2cm; }
+        body { font-family: "Times New Roman", Times, serif; font-size: 12px; line-height: 1.2; color: #000; }
+        
+        .header-table { width: 100%; border-bottom: 3px double #000; margin-bottom: 20px; padding-bottom: 10px; }
+        .header-table td { vertical-align: middle; }
+        .logo-cell { width: 100px; text-align: center; }
+        .logo-cell img { width: 80px; height: auto; }
+        .text-cell { text-align: center; }
+        .text-cell h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; }
+        .text-cell h3 { margin: 0; font-size: 14px; font-weight: bold; text-transform: uppercase; }
+        .text-cell p { margin: 2px 0; font-size: 11px; }
+        
+        .meta-info { margin-bottom: 20px; font-size: 12px; font-weight: bold; }
+        .meta-table { width: 100%; border: none; }
+        .meta-table td { padding: 2px 0; vertical-align: top; }
+        .label-col { width: 100px; }
+        .sep-col { width: 10px; }
+        
+        .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        .data-table th, .data-table td { border: 1px solid #000; padding: 5px; vertical-align: middle; }
+        .data-table th { text-align: center; font-weight: bold; background-color: #fff; }
+        .col-number { text-align: center; font-size: 10px; }
+        
         .text-center { text-align: center; }
         .text-end { text-align: right; }
-        .signature-table { margin-top: 50px; border: none; }
-        .signature-table td { border: none; padding: 20px; text-align: center; }
+        
+        .signature-table { width: 100%; margin-top: 30px; page-break-inside: avoid; }
+        .signature-table td { text-align: center; vertical-align: top; width: 50%; }
+        .signature-space { height: 70px; }
     </style>
 </head>
 <body>
-    <h1>RENCANA ANGGARAN BIAYA (RAB)</h1>
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <img src="{{ public_path('dist/assets/img/logoKU.png') }}" alt="Logo">
+            </td>
+            <td class="text-cell">
+                <h2>YAYASAN KERTHA USADA</h2>
+                <h3>RUMAH SAKIT UMUM KERTHA USADA<br>SINGARAJA</h3>
+                <p>Jl. Cendrawasih No. 5 - 7 Telp(0362) 26277. 26278 Fax(0362)</p>
+                <p>22741Singaraja- Bali</p>
+            </td>
+        </tr>
+    </table>
 
-    <p><strong>PEKERJAAN:</strong> {{ $rab->judul }}</p>
-    <p><strong>LOKASI:</strong> RSU KERTHA USADA</p>
-    <p><strong>KODE RAB:</strong> {{ $rab->kode_rab }}</p>
+    <div class="meta-info">
+        <table class="meta-table">
+            <tr>
+                <td class="label-col">PEKERJAAN</td>
+                <td class="sep-col">:</td>
+                <td>{{ $rab->judul }}</td>
+            </tr>
+            <tr>
+                <td class="label-col">LOKASI</td>
+                <td class="sep-col">:</td>
+                <td>RSU KERTHA USADA</td>
+            </tr>
+        </table>
+    </div>
 
-    <table>
+    <table class="data-table">
         <thead>
             <tr>
-                <th>No</th>
+                <th width="5%">No</th>
                 <th>Uraian Barang</th>
-                <th class="text-center">Jumlah</th>
-                <th class="text-end">Harga Satuan</th>
-                <th class="text-end">Ongkir</th>
-                <th class="text-end">Asuransi</th>
-                <th class="text-end">Sub Total</th>
+                <th width="15%">Foto</th>
+                <th width="8%">Jumlah</th>
+                <th width="15%">Harga Satuan</th>
+                <th width="10%">Ongkir</th>
+                <th width="10%">Asuransi pengiriman</th>
+                <th width="15%">Sub total</th>
+            </tr>
+            <tr class="col-number">
+                <td>1</td>
+                <td>2</td>
+                <td>3</td>
+                <td>4</td>
+                <td>5</td>
+                <td>6</td>
+                <td>7</td>
+                <td>8</td>
             </tr>
         </thead>
         <tbody>
@@ -39,41 +93,44 @@
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
                     <td>{{ $detail->nama_barang_diajukan }}</td>
+                    <td class="text-center">
+                        <!-- Placeholder for image if available in future -->
+                        @if(isset($detail->gambar) && $detail->gambar)
+                            <img src="{{ public_path('storage/'.$detail->gambar) }}" style="width: 50px; height: auto;">
+                        @endif
+                    </td>
                     <td class="text-center">{{ $detail->jumlah }}</td>
                     <td class="text-end">Rp {{ number_format($detail->perkiraan_harga_satuan, 0, ',', '.') }}</td>
-                    <td class="text-end">Rp {{ number_format($detail->ongkir, 0, ',', '.') }}</td>
-                    <td class="text-end">Rp {{ number_format($detail->asuransi, 0, ',', '.') }}</td>
+                    <td class="text-end">{{ $detail->ongkir > 0 ? number_format($detail->ongkir, 0, ',', '.') : '-' }}</td>
+                    <td class="text-end">{{ $detail->asuransi > 0 ? number_format($detail->asuransi, 0, ',', '.') : '-' }}</td>
                     <td class="text-end">Rp {{ number_format($detail->total_harga, 0, ',', '.') }}</td>
                 </tr>
                 @php $totalKeseluruhan += $detail->total_harga; @endphp
             @empty
                 <tr>
-                    <td colspan="7" class="text-center">Tidak ada detail barang.</td>
+                    <td colspan="8" class="text-center">Tidak ada detail barang.</td>
                 </tr>
             @endforelse
-        </tbody>
-        <tfoot>
             <tr>
-                <th colspan="6" class="text-end">TOTAL</th>
-                <th class="text-end">Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}</th>
+                <td colspan="7" class="text-end" style="font-weight: bold;">TOTAL</td>
+                <td class="text-end" style="font-weight: bold;">Rp {{ number_format($totalKeseluruhan, 0, ',', '.') }}</td>
             </tr>
-        </tfoot>
+        </tbody>
     </table>
 
     <table class="signature-table">
         <tr>
             <td>
-                <br><br>
+                <br>
                 Direktur RSU Kertha Usada Singaraja
-                <br><br><br><br><br>
-                (dr. I Wayan Parna Arianta, MARS)
+                <div class="signature-space"></div>
+                dr. I Wayan Parna Arianta, MARS
             </td>
             <td>
-                Singaraja, {{ \Carbon\Carbon::parse($rab->tanggal_disetujui ?? $rab->tanggal_dibuat)->format('d F Y') }}
-                <br><br>
+                Singaraja, {{ \Carbon\Carbon::parse($rab->tanggal_disetujui ?? $rab->tanggal_dibuat)->format('d F Y') }}<br>
                 Kepala Bidang Penunjang Medis
-                <br><br><br><br><br>
-                (...............................)
+                <div class="signature-space"></div>
+                dr. I Komang Heri Sukrastawan
             </td>
         </tr>
     </table>
