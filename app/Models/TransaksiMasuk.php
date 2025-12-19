@@ -18,6 +18,7 @@ class TransaksiMasuk extends Model
         'user_id',
         'keterangan',
         'rab_id',
+        'transaksi_keluar_id',
     ];
 
     public function barang_it()
@@ -38,5 +39,10 @@ class TransaksiMasuk extends Model
     public function rab()
     {
         return $this->belongsTo(Rab::class);
+    }
+
+    public function transaksiKeluar()
+    {
+        return $this->belongsTo(TransaksiKeluar::class, 'transaksi_keluar_id');
     }
 }

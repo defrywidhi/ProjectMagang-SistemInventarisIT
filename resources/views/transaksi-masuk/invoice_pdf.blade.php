@@ -80,14 +80,14 @@
     <table class="signature">
         <tr>
             <td>
-                Diserahkan Oleh (Supplier),
+                Diserahkan Oleh ...............,
                 <br><br><br><br>
                 (....................................)
             </td>
             <td>
-                Diterima Oleh (Admin Gudang),
+                Diterima Oleh ..................,
                 <br><br><br><br>
-                ( <strong>{{ $transaksi->user->name }}</strong> )
+                ( .................................. )
             </td>
         </tr>
     </table>

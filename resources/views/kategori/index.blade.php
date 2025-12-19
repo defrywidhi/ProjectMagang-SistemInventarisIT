@@ -163,40 +163,20 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#tabel-kategori').DataTable({
-            "responsive": true,
-            "lengthChange": true,
-            "autoWidth": false,
-            
-            // --- INI PENGATURAN POSISINYA (DOM) ---
-            // Penjelasan kode:
-            // <'row' ...> : Membuat baris baru (seperti <div class="row">)
-            // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
-            // l : Length (Show entries)
-            // f : Filter (Search)
-            // t : Table (Tabel itu sendiri)
-            // i : Info (Showing 1 to 10...)
-            // p : Pagination (Previous - Next)
-            
-            "dom":  
-                "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
-        });
-
+        
         $('#formTambahKategori').on('submit', function(e) {
             e.preventDefault(); // Stop form biar gak refresh halaman
-
+            
             // Ambil data dari form
             let formData = $(this).serialize();
             
             // Reset pesan error dulu (biar bersih)
             $('.form-control').removeClass('is-invalid');
             $('.invalid-feedback').text('');
-
+            
             // Ubah tombol jadi "Loading..."
             $('#btnSimpan').text('Menyimpan...').attr('disabled', true);
-
+            
             // Kirim Surat Lewat Belakang (AJAX)
             $.ajax({
                 url: "{{ route('kategori.store') }}",
@@ -222,7 +202,7 @@
                     
                     // Ambil daftar error dari Laravel
                     let errors = xhr.responseJSON.errors;
-
+                    
                     // Tampilkan error di masing-masing input
                     if (errors.nama_kategori) {
                         $('input[name="nama_kategori"]').addClass('is-invalid');
@@ -236,14 +216,14 @@
             });
         });
     });
-
+    
     // ==========================================
     // 1. LOGIKA DELETE (HAPUS) VIA AJAX
     // ==========================================
     // Kita pakai 'on click' pada document karena tombolnya ada di dalam DataTables (elemen dinamis)
     $(document).on('click', '.btn-delete', function() {
         let url = $(this).data('url'); // Ambil URL dari tombol
-
+        
         Swal.fire({
             title: 'Yakin hapus data ini?',
             text: "Data tidak bisa dikembalikan!",
@@ -262,7 +242,7 @@
                     },
                     success: function(response) {
                         Swal.fire('Terhapus!', response.message, 'success')
-                            .then(() => location.reload());
+                        .then(() => location.reload());
                     },
                     error: function(xhr) {
                         // Handle error (misal: masih ada relasi barang)
@@ -273,41 +253,41 @@
             }
         });
     });
-
+    
     // ==========================================
     // 2. LOGIKA BUKA MODAL EDIT (AMBIL DATA)
     // ==========================================
     let editUrl = ''; // Variabel global untuk simpan URL update saat ini
-
+    
     $(document).on('click', '.btn-edit', function() {
         let showUrl = $(this).data('url'); // URL untuk ambil data (method edit)
         editUrl = $(this).data('update-url'); // URL untuk simpan data (method update)
-
+        
         // Reset form & error sebelum buka
         $('#formEditKategori')[0].reset();
         $('.form-control').removeClass('is-invalid');
         $('.invalid-feedback').text('');
-
+        
         // Ambil data kategori dari server
         $.get(showUrl, function(data) {
             // Isi form dengan data yang didapat
             $('#edit_nama_kategori').val(data.nama_kategori);
             $('#edit_kode_kategori').val(data.kode_kategori);
-
+            
             // Tampilkan modal
             $('#modalEditKategori').modal('show');
         });
     });
-
+    
     // ==========================================
     // 3. LOGIKA SIMPAN EDIT (UPDATE) VIA AJAX
     // ==========================================
     $('#formEditKategori').on('submit', function(e) {
         e.preventDefault();
         let formData = $(this).serialize();
-
+        
         $('#btnUpdate').text('Mengupdate...').attr('disabled', true);
-
+        
         $.ajax({
             url: editUrl, // Pakai URL yang tadi kita simpan
             type: "POST", // Di form sudah ada @method('PUT'), jadi type tetap POST aman, atau ganti PUT juga bisa
@@ -336,6 +316,27 @@
                 }
             }
         });
+    });
+    
+    $('#tabel-kategori').DataTable({
+        "responsive": true,
+        "lengthChange": true,
+        "autoWidth": false,
+        
+        // --- INI PENGATURAN POSISINYA (DOM) ---
+        // Penjelasan kode:
+        // <'row' ...> : Membuat baris baru (seperti <div class="row">)
+        // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
+        // l : Length (Show entries)
+        // f : Filter (Search)
+        // t : Table (Tabel itu sendiri)
+        // i : Info (Showing 1 to 10...)
+        // p : Pagination (Previous - Next)
+        
+        "dom":  
+            "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
     });
 </script>
 @endpush

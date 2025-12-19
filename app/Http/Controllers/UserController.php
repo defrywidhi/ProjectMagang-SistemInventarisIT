@@ -8,6 +8,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 
 
@@ -100,9 +101,20 @@ class UserController extends Controller
             'email' => $request->email,
         ];
 
-        // 3. Cek jika password diisi, baru update password
+        // 3. LOGIKA RESET PASSWORD & KIRIM EMAIL
         if ($request->filled('password')) {
+            // Update password di array data
             $data['password'] = Hash::make($request->password);
+            
+            // --- KIRIM EMAIL KE USER ---
+            // Kita kirim password mentah ($request->password) ke email user
+            // Hati-hati: Ini tidak aman untuk production public, tapi oke untuk internal/magang.
+            $rawPassword = $request->password;
+            
+            Mail::send('emails.user-new-password', ['user' => $user, 'password' => $rawPassword], function($message) use ($user) {
+                $message->to($user->email)
+                        ->subject('INFO PASSWORD BARU ANDA - Sistem Inventory');
+            });
         }
 
         // 4. Update data user

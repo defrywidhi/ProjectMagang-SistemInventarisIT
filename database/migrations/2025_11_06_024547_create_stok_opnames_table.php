@@ -13,8 +13,10 @@ return new class extends Migration
     {
         Schema::create('stok_opnames', function (Blueprint $table) {
             $table->id();
+            $table->string('kode_opname')->unique()->nullable(); 
             $table->date('tanggal_opname');
             $table->foreignId('user_id')->constrained('users');
+            $table->enum('metode', ['Full', 'Random'])->default('Full'); 
             $table->enum('status', ['Selesai', 'Pending'])->default('Pending');
             $table->text('catatan')->nullable();
             $table->timestamps();

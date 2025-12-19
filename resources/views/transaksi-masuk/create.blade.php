@@ -16,19 +16,23 @@
                 <div class="card-body">
                     <form action="{{ route('transaksi-masuk.store') }}" method="post">
                         @csrf
-                        <div class="form-group">
-                            <label for="barang_it_id">Pilih Nama Barang</label>
-                            <div class="form-group">
-                                <label for="barang_it_id">Pilih Nama Barang</label>
-                                <select class="form-select mb-3" name="barang_it_id" id="barang_it_id" required>
-                                    <option value=""> -- Pilih Nama Barang --</option>
-                                    @foreach ($barangs as $item_barang)
+                        <div class="form-group mb-3">
+                            <label for="barang_it_id">Pilih Barang</label>
+                            <select class="form-select @error('barang_it_id') is-invalid @enderror" name="barang_it_id" id="barang_it_id" required>
+                                <option value="">-- Pilih Barang --</option>
+                                @foreach ($barangs as $item_barang)
                                     <option value="{{ $item_barang->id }}" {{ old('barang_it_id') == $item_barang->id ? 'selected' : '' }}>
-                                        {{ $item_barang->nama_barang }} (Merk: {{ $item_barang->merk ?? '-' }})
+                                        {{-- Format Tampilan: Nama Barang (Merk) - [Kondisi] - Stok: 10 --}}
+                                        {{ $item_barang->nama_barang }} 
+                                        ({{ $item_barang->merk ?? '-' }}) 
+                                        - [{{ $item_barang->kondisi }}] 
+                                        - Stok: {{ $item_barang->stok }}
                                     </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                                @endforeach
+                            </select>
+                            @error('barang_it_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="form-group">
                             <label for="supplier_id">Pilih Supplier Barang</label>

@@ -17,8 +17,10 @@ class Rab extends Model
         'user_id',
         'status',
         'tanggal_dibuat',
-        'tanggal_disetujui',
-        'approved_by',
+        'manager_id',
+        'manager_at',
+        'direktur_id',
+        'direktur_at',
         'catatan_approval',
     ];
 
@@ -40,5 +42,17 @@ class Rab extends Model
     public function transaksiMasuks()
     {
         return $this->hasMany(TransaksiMasuk::class);
+    }
+
+    // Relasi ke User Manager
+    public function manager()
+    {
+        return $this->belongsTo(User::class, 'manager_id');
+    }
+
+    // Relasi ke User Direktur
+    public function direktur()
+    {
+        return $this->belongsTo(User::class, 'direktur_id');
     }
 }

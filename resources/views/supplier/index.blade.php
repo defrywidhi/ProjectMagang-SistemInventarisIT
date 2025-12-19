@@ -190,28 +190,6 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#tabel-supplier').DataTable({
-            "responsive": true,
-            "lengthChange": true,
-            "autoWidth": false,
-            
-            // --- INI PENGATURAN POSISINYA (DOM) ---
-            // Penjelasan kode:
-            // <'row' ...> : Membuat baris baru (seperti <div class="row">)
-            // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
-            // l : Length (Show entries)
-            // f : Filter (Search)
-            // t : Table (Tabel itu sendiri)
-            // i : Info (Showing 1 to 10...)
-            // p : Pagination (Previous - Next)
-            
-            "dom":  
-                "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
-        });
-
-        // 2. AJAX Tambah Supplier
         $('#formTambahSupplier').on('submit', function(e) {
             e.preventDefault();
             let formData = $(this).serialize();
@@ -220,7 +198,7 @@
             $('.form-control').removeClass('is-invalid');
             $('.invalid-feedback').text('');
             $('#btnSimpan').text('Menyimpan...').attr('disabled', true);
-
+            
             $.ajax({
                 url: "{{ route('supplier.store') }}",
                 type: "POST",
@@ -261,7 +239,6 @@
             });
         });
 
-        // 3. SweetAlert untuk DELETE
         $('.btn-delete').click(function(e) {
             e.preventDefault();
             let form = $(this).closest('form');
@@ -282,7 +259,6 @@
         });
     });
 
-        // LOGIKA DELETE AJAX
     $(document).on('click', '.btn-delete', function() {
         let url = $(this).data('url');
         Swal.fire({
@@ -310,17 +286,16 @@
             }
         });
     });
-
-    // LOGIKA EDIT AJAX (Buka Modal)
+    
     let editUrl = '';
     $(document).on('click', '.btn-edit', function() {
         let showUrl = $(this).data('url');
         editUrl = $(this).data('update-url');
-
+        
         $('#formEditSupplier')[0].reset();
         $('.form-control').removeClass('is-invalid');
         $('.invalid-feedback').text('');
-
+        
         $.get(showUrl, function(data) {
             $('#edit_nama_supplier').val(data.nama_supplier);
             $('#edit_alamat').val(data.alamat);
@@ -329,13 +304,12 @@
             $('#modalEditSupplier').modal('show');
         });
     });
-
-    // LOGIKA UPDATE AJAX (Simpan)
+    
     $('#formEditSupplier').on('submit', function(e) {
         e.preventDefault();
         let formData = $(this).serialize();
         $('#btnUpdate').text('Mengupdate...').attr('disabled', true);
-
+        
         $.ajax({
             url: editUrl,
             type: "POST",
@@ -358,6 +332,27 @@
                 if (errors.email) { $('#edit_email').addClass('is-invalid'); $('#error-edit-email').text(errors.email[0]); }
             }
         });
+    });
+
+    $('#tabel-supplier').DataTable({
+        "responsive": true,
+        "lengthChange": true,
+        "autoWidth": false,
+        
+        // --- INI PENGATURAN POSISINYA (DOM) ---
+        // Penjelasan kode:
+        // <'row' ...> : Membuat baris baru (seperti <div class="row">)
+        // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
+        // l : Length (Show entries)
+        // f : Filter (Search)
+        // t : Table (Tabel itu sendiri)
+        // i : Info (Showing 1 to 10...)
+        // p : Pagination (Previous - Next)
+        
+        "dom":  
+            "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
     });
 </script>
 @endpush

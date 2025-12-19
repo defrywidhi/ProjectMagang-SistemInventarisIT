@@ -6,14 +6,13 @@
 @section('content')
 <div class="container-fluid">
 
-{{-- =========================================================== --}}
+    {{-- =========================================================== --}}
     {{-- BARIS 1: INFO BOXES (Statistik Utama) --}}
     {{-- =========================================================== --}}
     <div class="row">
         
         {{-- BOX 1: TOTAL ASET BARANG --}}
         <div class="col-12 col-sm-6 col-md-3">
-            {{-- Tambah 'position-relative' biar link-nya pas --}}
             <div class="info-box position-relative">
                 <span class="info-box-icon text-bg-info shadow-sm">
                     <i class="bi bi-box-seam-fill"></i>
@@ -22,7 +21,6 @@
                     <span class="info-box-text">Total Aset Barang</span>
                     <span class="info-box-number">{{ $totalBarang }} <small>Jenis</small></span>
                     
-                    {{-- INI "JEMBATAN" LINK-NYA (Tidak terlihat tapi bikin kotak bisa diklik) --}}
                     <a href="{{ route('barang.index') }}" class="stretched-link"></a>
                 </div>
             </div>
@@ -38,14 +36,13 @@
                     <span class="info-box-text">Stok Kritis</span>
                     <span class="info-box-number">{{ $stokKritis }} <small>Item</small></span>
                     
-                    {{-- Link ke Master Barang --}}
                     <a href="{{ route('barang.index') }}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
 
         {{-- BOX 3: RAB MENUNGGU --}}
-        <div class="col-12 col-sm-6 col-md-3">
+        <div class="col-12 col-sm-6 col-md-2">
             <div class="info-box position-relative">
                 <span class="info-box-icon text-bg-warning shadow-sm">
                     <i class="bi bi-file-earmark-text-fill"></i>
@@ -54,27 +51,41 @@
                     <span class="info-box-text">RAB Menunggu</span>
                     <span class="info-box-number">{{ $rabMenunggu }} <small>Dokumen</small></span>
                     
-                    {{-- Link ke Daftar RAB --}}
                     <a href="{{ route('rab.index') }}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
 
-        {{-- BOX 4: BELANJA BULAN INI --}}
-        <div class="col-12 col-sm-6 col-md-3">
+        {{-- BOX 4: BARANG MASUK BULAN INI --}}
+        <div class="col-12 col-sm-6 col-md-2">
             <div class="info-box position-relative">
                 <span class="info-box-icon text-bg-success shadow-sm">
-                    <i class="bi bi-cart-check-fill"></i>
+                    <i class="bi bi-arrow-down-circle-fill"></i>
                 </span>
                 <div class="info-box-content">
-                    <span class="info-box-text">Belanja Bulan Ini</span>
-                    <span class="info-box-number"><small>Rp</small> {{ number_format($pengeluaranBulanIni, 0, ',', '.') }}</span>
+                    <span class="info-box-text">Masuk Bulan Ini</span>
+                    <span class="info-box-number">{{ $masukBulanIni }} <small>Transaksi</small></span>
                     
-                    {{-- Link ke Transaksi Masuk --}}
                     <a href="{{ route('transaksi-masuk.index') }}" class="stretched-link"></a>
                 </div>
             </div>
         </div>
+
+        {{-- BOX 5: BARANG KELUAR BULAN INI --}}
+        <div class="col-12 col-sm-6 col-md-2">
+            <div class="info-box position-relative">
+                <span class="info-box-icon text-bg-primary shadow-sm">
+                    <i class="bi bi-arrow-up-circle-fill"></i>
+                </span>
+                <div class="info-box-content">
+                    <span class="info-box-text">Keluar Bulan Ini</span>
+                    <span class="info-box-number">{{ $keluarBulanIni }} <small>Transaksi</small></span>
+                    
+                    <a href="{{ route('transaksi-keluar.index') }}" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     {{-- =========================================================== --}}
@@ -84,7 +95,7 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title">Laporan Rekapitulasi Tahunan ({{ date('Y') }})</h5>
+                    <h5 class="card-title">Statistik Gudang Tahun {{ date('Y') }}</h5>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
                             <i class="bi bi-dash-lg"></i>
@@ -94,25 +105,22 @@
 
                 <div class="card-body">
                     <div class="row">
-                        {{-- GRAFIK GARIS (KIRI) --}}
+                        {{-- CHART (KIRI) - Tetap Sama --}}
                         <div class="col-md-8">
-                            <p class="text-center"><strong>Tren Transaksi: 1 Jan - 31 Des {{ date('Y') }}</strong></p>
+                            <p class="text-center"><strong>Grafik Keluar-Masuk Barang</strong></p>
                             <div class="chart">
                                 <canvas id="salesChart" style="height: 180px;"></canvas>
                             </div>
                         </div>
 
-                        {{-- PROGRESS BARS (KANAN) --}}
+                        {{-- PROGRESS (KANAN) - Tetap Sama --}}
                         <div class="col-md-4">
-                            <p class="text-center"><strong>Top 5 Barang Keluar (Terlaris)</strong></p>
-
+                            <p class="text-center"><strong>Top 5 Barang Keluar</strong></p>
                             @forelse($topBarangKeluar as $item)
                             @php
-                            // Hitung persentase bar
-                            $persen = ($item->total_keluar / $totalSemuaKeluar) * 100;
-                            // Warna bar beda-beda dikit biar cantik
-                            $colors = ['primary', 'success', 'warning', 'danger', 'info'];
-                            $color = $colors[$loop->index % 5];
+                                $persen = $totalSemuaKeluar > 0 ? ($item->total_keluar / $totalSemuaKeluar) * 100 : 0;
+                                $colors = ['primary', 'success', 'warning', 'danger', 'info'];
+                                $color = $colors[$loop->index % 5];
                             @endphp
                             <div class="progress-group">
                                 {{ $item->barang_it->nama_barang ?? 'Item Terhapus' }}
@@ -122,41 +130,57 @@
                                 </div>
                             </div>
                             @empty
-                            <p class="text-center text-muted">Belum ada transaksi keluar.</p>
+                            <p class="text-center text-muted">Belum ada data.</p>
                             @endforelse
                         </div>
                     </div>
                 </div>
 
-                {{-- FOOTER SUMMARY --}}
+                {{-- FOOTER SUMMARY (YANG DIUBAH) --}}
                 <div class="card-footer">
                     <div class="row">
+                        
+                        {{-- ITEM 1: (UBAH) BARANG AKTIF --}}
                         <div class="col-sm-3 col-6">
                             <div class="description-block border-end">
-                                <span class="description-percentage text-success"><i class="bi bi-caret-up-fill"></i> Aset</span>
-                                <h5 class="description-header">Rp {{ number_format($nilaiAset, 0, ',', '.') }}</h5>
-                                <span class="description-text">ESTIMASI NILAI ASET</span>
+                                <span class="description-percentage text-primary">
+                                    <i class="bi bi-box-fill"></i> Tersedia
+                                </span>
+                                <h5 class="description-header">{{ $barangAktif }} Jenis</h5>
+                                <span class="description-text">STOK BARANG > 0</span>
                             </div>
                         </div>
+
+                        {{-- ITEM 2: TOTAL TRANSAKSI TAHUNAN --}}
                         <div class="col-sm-3 col-6">
                             <div class="description-block border-end">
-                                <span class="description-percentage text-warning"><i class="bi bi-caret-left-fill"></i> Aktivitas</span>
+                                <span class="description-percentage text-warning">
+                                    <i class="bi bi-activity"></i> Sibuk
+                                </span>
                                 <h5 class="description-header">{{ $totalTransaksiTahunIni }}</h5>
-                                <span class="description-text">TOTAL TRANSAKSI TAHUN INI</span>
+                                <span class="description-text">TOTAL TRANSAKSI (THN)</span>
                             </div>
                         </div>
+
+                        {{-- ITEM 3: TOTAL MASUK --}}
                         <div class="col-sm-3 col-6">
                             <div class="description-block border-end">
-                                <span class="description-percentage text-success"><i class="bi bi-caret-up-fill"></i> Masuk</span>
+                                <span class="description-percentage text-success">
+                                    <i class="bi bi-caret-up-fill"></i> In
+                                </span>
                                 <h5 class="description-header">{{ array_sum($chartMasuk) }}</h5>
-                                <span class="description-text">TOTAL BARANG MASUK</span>
+                                <span class="description-text">ITEM MASUK (THN)</span>
                             </div>
                         </div>
+
+                        {{-- ITEM 4: TOTAL KELUAR --}}
                         <div class="col-sm-3 col-6">
                             <div class="description-block">
-                                <span class="description-percentage text-danger"><i class="bi bi-caret-down-fill"></i> Keluar</span>
+                                <span class="description-percentage text-danger">
+                                    <i class="bi bi-caret-down-fill"></i> Out
+                                </span>
                                 <h5 class="description-header">{{ array_sum($chartKeluar) }}</h5>
-                                <span class="description-text">TOTAL BARANG KELUAR</span>
+                                <span class="description-text">ITEM KELUAR (THN)</span>
                             </div>
                         </div>
                     </div>
@@ -230,7 +254,7 @@
                                 @endif
                             </div>
                             <div class="product-info">
-                                <a href="#" class="product-title">
+                                <a href="{{ route('barang.index') }}" class="product-title">
                                     {{ $in->barang_it->nama_barang ?? 'Item Dihapus' }}
                                     <span class="badge text-bg-success float-end me-2">+{{ $in->jumlah_masuk }}</span>
                                 </a>

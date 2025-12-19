@@ -16,9 +16,6 @@ class RolesAndPermissionsSeeder extends Seeder
         // Reset cache roles/permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // === BUAT DAFTAR KUNCI (PERMISSIONS) ===
-        // Sesuai dokumen mentormu 
-
         // Kunci untuk Barang
         Permission::create(['name' => 'kelola barang']); // Untuk Admin (CRUD)
 
@@ -37,13 +34,10 @@ class RolesAndPermissionsSeeder extends Seeder
         // Kunci Super Admin
         Permission::create(['name' => 'kelola user']); // HANYA untuk Admin
 
-        // === BUAT GANTUNGAN KUNCI (ROLES) & PASANG KUNCINYA ===
 
-        // Role 1: Teknisi 
         $roleTeknisi = Role::create(['name' => 'teknisi']);
         $roleTeknisi->givePermissionTo('input barang keluar');
 
-        // Role 2: Auditor 
         $roleAuditor = Role::create(['name' => 'auditor']);
         $roleAuditor->givePermissionTo([
             'lihat laporan',
@@ -57,16 +51,13 @@ class RolesAndPermissionsSeeder extends Seeder
             'lihat laporan'
         ]);
 
-        // Role 4: Admin 
-        // $roleAdmin = Role::create(['name' => 'admin']);
-        // Admin bisa melakukan semua yang bisa dilakukan Manajer dan Teknisi
-        // $roleAdmin->givePermissionTo(Permission::all());
-        // Beri izin kelola user (yang tidak dimiliki Manajer)
-        // $roleAdmin->givePermissionTo('kelola user'); // Ini sudah termasuk di Permission::all()
+        $roleDirektur = Role::create(['name' => 'direktur']);
+        $roleDirektur->givePermissionTo([
+            'setujui rab', 
+            'lihat laporan'
+        ]);
 
-        // Role admin baru
         $roleAdmin = Role::create(['name' => 'admin']);
-        // Beri Admin semua izin KECUALI 'setujui rab'
         $permissions_admin = Permission::where('name', '!=', 'setujui rab')->get();
         $roleAdmin->givePermissionTo($permissions_admin);
     }

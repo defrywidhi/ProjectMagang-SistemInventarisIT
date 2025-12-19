@@ -15,6 +15,7 @@ class TransaksiKeluar extends Model
         'tanggal_keluar',
         'user_id',
         'keterangan',
+        'jumlah_dikembalikan',
     ];
 
     public function barang_it()
@@ -24,5 +25,11 @@ class TransaksiKeluar extends Model
 
     public function user(){
         return $this->belongsTo(User::class);
+    }
+
+    // Relasi ke Transaksi Masuk (Anak-anak returnya)
+    public function transaksiMasuks()
+    {
+        return $this->hasMany(TransaksiMasuk::class, 'transaksi_keluar_id');
     }
 }

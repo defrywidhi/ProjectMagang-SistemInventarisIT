@@ -16,12 +16,14 @@
                         @csrf
                         <div class="form-group">
                             <label for="barang_it_id">Barang Yang Keluar</label>
-                            <select class="form-control @error('barang_it_id') is-invalid @enderror" id="barang_it_id" name="barang_it_id" required>
-                                <option value=""> -- Pilih Barang --</option>
-                                @foreach($barangs as $item)
-                                <option value="{{ $item->id }}" {{ old('barang_it_id') == $item->id ? 'selected' : '' }}>
-                                    {{ $item->nama_barang }} (Stok: {{ $item->stok }})
-                                </option>
+                            <select class="form-control" id="barang_it_id" name="barang_it_id" required>
+                                <option value="">-- Pilih Barang --</option>
+                                @foreach($barang_it as $item)
+                                    {{-- Kita cek: Apakah ini barang yang dipilih dari URL? ATAU dari input lama (validasi gagal)? --}}
+                                    <option value="{{ $item->id }}" 
+                                        {{ (old('barang_it_id') == $item->id || (isset($selected_barang_id) && $selected_barang_id == $item->id)) ? 'selected' : '' }}>
+                                        {{ $item->nama_barang }} (Stok: {{ $item->stok }}) - [{{ $item->kondisi }}]
+                                    </option>
                                 @endforeach
                             </select>
                             @error('barang_it_id')
@@ -53,7 +55,7 @@
                         </div>
                         <div class="form-group">
                             <label for="keterangan">Keterangan</label>
-                            <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan" name="keterangan" rows="3">{{ old('keterangan') }}</textarea>
+                            <textarea class="form-control" id="keterangan" name="keterangan" rows="3">{{ old('keterangan', $default_keterangan ?? '') }}</textarea>
                             @error('keterangan')
                             <div class="invalid-feedback">
                                 {{ $message }}

@@ -60,13 +60,13 @@
     <table class="signature">
         <tr>
             <td>
-                Diserahkan Oleh (Gudang),
-                <div class="line"></div>
-                (Admin Gudang)
+                Diserahkan Oleh ..................,
+                <br><br><br><br><br>
+                (....................................)
             </td>
             <td>
-                Diterima Oleh (Teknisi/User),
-                <div class="line"></div>
+                Diterima Oleh ..................,
+                <br><br><br><br><br>
                 (....................................)
             </td>
         </tr>

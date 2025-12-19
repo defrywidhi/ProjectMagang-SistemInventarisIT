@@ -13,6 +13,8 @@ use App\Http\Controllers\DashboardController;
 use App\Models\RabDetail;
 use App\Http\Controllers\StokOpnameController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\PasswordRequestController;
+
 
 Route::resource('kategori', KategoriController::class)->middleware(['auth', 'role:admin']);
 Route::resource('supplier', SupplierController::class)->middleware(['auth', 'role:admin']);
@@ -25,25 +27,38 @@ Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware(
 Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middleware(['auth', 'role:admin|teknisi']);
 
 
-Route::resource('rab', RabController::class)->middleware(['auth', 'role:admin|manager']);
+Route::resource('rab', RabController::class)->middleware(['auth', 'role:admin|manager|direktur']);
 
-Route::post('/rab/{rab}/ajukan', [RabController::class, 'ajukanApproval'])->name('rab.ajukan')->middleware(['auth', 'role:admin|manager']);
+Route::post('/rab/{rab}/ajukan', [RabController::class, 'ajukanApproval'])->name('rab.ajukan')->middleware(['auth', 'role:admin|manager|direktur']);
 
-Route::post('/rab/{rab}/approve', [RabController::class, 'approveRAB'])->name('rab.approve')->middleware(['auth', 'role:manager']);
+Route::post('/rab/{rab}/approve', [RabController::class, 'approveRAB'])->name('rab.approve')->middleware(['auth', 'role:manager|direktur']);
 
-Route::post('/rab/{rab}/reject', [RabController::class, 'rejectRAB'])->name('rab.reject')->middleware(['auth', 'role:manager']);
+// Route Approval RAB Bertingkat
+Route::post('/rab/{rab}/approve-manager', [RabController::class, 'approveManager'])->name('rab.approve.manager');
 
-Route::get('/rab/{rab}/get-details', [RabController::class, 'getRabDetailsJson'])->name('rab.getDetailsJson')->middleware(['auth', 'role:admin|manager']);
+Route::post('/rab/{rab}/approve-direktur', [RabController::class, 'approveDirektur'])->name('rab.approve.direktur');
 
-Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail'])->name('rab.details.destroy')->middleware(['auth', 'role:admin|manager']);
+Route::post('/rab/{rab}/reject', [RabController::class, 'rejectRAB'])->name('rab.reject')->middleware(['auth', 'role:manager|direktur']);
 
-Route::get('/rab/details/{rab_detail}/edit', [RabController::class, 'editDetail'])->name('rab.details.edit')->middleware(['auth', 'role:admin|manager']);
+// Route::get('/rab/{rab}/get-details', [RabController::class, 'getRabDetailsJson'])->name('rab.getDetailsJson')->middleware(['auth', 'role:admin|manager']);
 
-Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])->name('rab.details.update')->middleware(['auth', 'role:admin|manager']);
+Route::delete('/rab/details/{rab_detail}', [RabController::class, 'destroyDetail'])->name('rab.details.destroy')->middleware(['auth', 'role:admin|manager|direktur']);
 
-Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware(['auth', 'role:admin|manager']);
+Route::get('/rab/details/{rab_detail}/edit', [RabController::class, 'editDetail'])->name('rab.details.edit')->middleware(['auth', 'role:admin|manager|direktur']);
+
+Route::put('/rab/details/{rab_detail}', [RabController::class, 'updateDetail'])->name('rab.details.update')->middleware(['auth', 'role:admin|manager|direktur']);
+
+Route::get('rab/{rab}/details-json', [RabController::class, 'getDetailsJson'])->name('rab.getDetailsJson');
+
+Route::post('/rab/{rab}/details', [RabController::class, 'storeDetail'])->name('rab.details.store')->middleware(['auth', 'role:admin|manager|direktur']);
 
 Route::get('/stok-opname', [StokOpnameController::class, 'index'])->name('stok-opname.index')->middleware(['auth', 'role:admin|auditor']);
+
+Route::post('stok-opname/update-item/{id}', [StokOpnameController::class, 'updateItem'])->name('stok-opname.update_item')->middleware(['auth', 'role:admin|auditor']);
+
+Route::post('stok-opname/{stokOpname}/selesaikan', [StokOpnameController::class, 'selesaikanSO'])->name('stok-opname.selesaikan')->middleware(['auth', 'role:admin|auditor']);
+
+Route::get('stok-opname/{stokOpname}/cetak', [StokOpnameController::class, 'cetakPDF'])->name('stok-opname.cetak')->middleware(['auth', 'role:admin|auditor']);
 
 Route::get('/stok-opname/create', [StokOpnameController::class, 'create'])->name('stok-opname.create')->middleware(['auth', 'role:admin|auditor']);
 
@@ -75,6 +90,11 @@ Route::get('/transaksi-masuk/{transaksi_masuk}/cetak', [TransaksiMasukController
 // Rute Cetak Bukti Keluar
 Route::get('/transaksi-keluar/{transaksi_keluar}/cetak', [TransaksiKeluarController::class, 'cetakBuktiKeluar'])->name('transaksi-keluar.cetakBuktiKeluar')->middleware('auth');
 
+Route::post('/transaksi-keluar/{transaksi_keluar}/retur', [TransaksiKeluarController::class, 'processRetur'])->name('transaksi-keluar.retur')->middleware('auth');
+
+// Rute untuk ambil detail RAB (JSON) buat AJAX auto-fill
+
+
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -86,8 +106,16 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware(['au
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::post('/profile/upload-ttd', [ProfileController::class, 'uploadTtd'])->name('profile.upload_ttd');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__ . '/auth.php';
+
+Route::get('forgot-password', [PasswordRequestController::class, 'showLinkRequestForm'])
+    ->name('password.request');
+
+Route::post('forgot-password', [PasswordRequestController::class, 'sendResetRequest'])
+    ->name('password.email');
+

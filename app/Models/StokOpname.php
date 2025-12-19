@@ -8,10 +8,12 @@ class StokOpname extends Model
 {
     //
     protected $fillable = [
+        'kode_opname',    
         'tanggal_opname',
-        'user_id',
-        'status',
+        'metode',       
         'catatan',
+        'status',
+        'user_id',
     ];
 
     public function details()

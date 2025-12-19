@@ -59,7 +59,7 @@
                 <tbody class="align-middle text-center">
                     @forelse ($barangs as $item )
                     <tr>
-                        <td>{{ $item -> kategori -> nama_kategori }}</td>
+                        <td>{{ $item -> kategori -> kode_kategori }}</td>
                         <td>{{ $item -> nama_barang }}</td>
                         <td>{{ $item -> merk ?? '_'}}</td>
                         <td>{{ $item -> serial_number ?? '_'}}</td>
@@ -107,6 +107,22 @@
                         </td> -->
 
                         <td class="text-center align-middle p-2">
+                            <div class="d-flex justify-content-center gap-1">
+                            
+                            @if($item->kondisi == 'Rusak' && $item->stok > 0)
+                            <a href="{{ route('transaksi-keluar.create', ['barang_id' => $item->id, 'tipe' => 'service']) }}" 
+                               class="btn btn-warning btn-sm" title="Kirim Service">
+                                <i class="bi bi-tools"></i>
+                            </a>
+                            @endif
+
+                            @if(($item->kondisi == 'Baru' || $item->kondisi == 'Bekas') && $item->stok > 0)
+                            <a href="{{ route('transaksi-keluar.create', ['barang_id' => $item->id, 'tipe' => 'pakai']) }}" 
+                               class="btn btn-success btn-sm" title="Keluarkan / Pakai">
+                                <i class="bi bi-box-arrow-right"></i>
+                            </a>
+                            @endif
+
                             {{-- Tombol Edit (AJAX) --}}
                             <button type="button" class="btn btn-warning btn-sm btn-edit" 
                                     data-url="{{ route('barang.edit', $item->id) }}" 
@@ -119,6 +135,7 @@
                                     data-url="{{ route('barang.destroy', $item->id) }}">
                                 <i class="bi bi-trash"></i>
                             </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -291,30 +308,11 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        $('#tabel-barang').DataTable({
-            "responsive": true,
-            "lengthChange": true,
-            "autoWidth": false,
-
-            // --- INI PENGATURAN POSISINYA (DOM) ---
-            // Penjelasan kode:
-            // <'row' ...> : Membuat baris baru (seperti <div class="row">)
-            // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
-            // l : Length (Show entries)
-            // f : Filter (Search)
-            // t : Table (Tabel itu sendiri)
-            // i : Info (Showing 1 to 10...)
-            // p : Pagination (Previous - Next)
-
-            "dom": "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
-                "<'row'<'col-sm-12'tr>>" +
-                "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
-        });
-
+        
         // AJAX Tambah Barang (DENGAN GAMBAR)
         $('#formTambahBarang').on('submit', function(e) {
             e.preventDefault();
-
+            
             // --- JURUS KHUSUS UPLOAD FILE ---
             // Kita pakai FormData, bukan serialize()
             let formData = new FormData(this); 
@@ -324,7 +322,7 @@
             $('.form-control, .form-select').removeClass('is-invalid');
             $('.invalid-feedback').text('');
             $('#btnSimpan').text('Menyimpan...').attr('disabled', true);
-
+            
             $.ajax({
                 url: "{{ route('barang.store') }}",
                 type: "POST",
@@ -334,7 +332,7 @@
                 contentType: false, // Biar browser yang atur header encoding
                 processData: false, // Biar jQuery gak ngubah data jadi string
                 // -----------------------------------
-
+                
                 success: function(response) {
                     $('#modalTambahBarang').modal('hide');
                     $('#formTambahBarang')[0].reset();
@@ -346,7 +344,7 @@
                 error: function(xhr) {
                     $('#btnSimpan').text('Simpan').attr('disabled', false);
                     let errors = xhr.responseJSON.errors;
-
+                    
                     // Mapping Error (Manual satu per satu biar aman)
                     if (errors.nama_barang) { $('input[name="nama_barang"]').addClass('is-invalid'); $('#error-nama_barang').text(errors.nama_barang[0]); }
                     if (errors.kategori_id) { $('select[name="kategori_id"]').addClass('is-invalid'); $('#error-kategori_id').text(errors.kategori_id[0]); }
@@ -385,17 +383,17 @@
             }
         });
     });
-
+    
     // 2. LOGIKA BUKA MODAL EDIT
     let editUrl = '';
     $(document).on('click', '.btn-edit', function() {
         let showUrl = $(this).data('url');
         editUrl = $(this).data('update-url');
-
+        
         $('#formEditBarang')[0].reset();
         $('.form-control, .form-select').removeClass('is-invalid');
         $('.invalid-feedback').text('');
-
+        
         $.get(showUrl, function(data) {
             // Isi form dengan data
             $('#edit_nama_barang').val(data.nama_barang);
@@ -409,14 +407,14 @@
             $('#modalEditBarang').modal('show');
         });
     });
-
+    
     // 3. LOGIKA UPDATE AJAX (Pakai FormData!)
     $('#formEditBarang').on('submit', function(e) {
         e.preventDefault();
         let formData = new FormData(this); // JURUS FormData untuk File
-
+        
         $('#btnUpdate').text('Mengupdate...').attr('disabled', true);
-
+        
         $.ajax({
             url: editUrl,
             type: "POST", // Tetap POST karena ada file, method PUT di-handle _method field
@@ -441,6 +439,26 @@
                 // ... tambahkan mapping lain jika perlu ...
             }
         });
+    });
+    
+    $('#tabel-barang').DataTable({
+        "responsive": true,
+        "lengthChange": true,
+        "autoWidth": false,
+    
+        // --- INI PENGATURAN POSISINYA (DOM) ---
+        // Penjelasan kode:
+        // <'row' ...> : Membuat baris baru (seperti <div class="row">)
+        // <'col-...' ...> : Membuat kolom (seperti <div class="col-md-6">)
+        // l : Length (Show entries)
+        // f : Filter (Search)
+        // t : Table (Tabel itu sendiri)
+        // i : Info (Showing 1 to 10...)
+        // p : Pagination (Previous - Next)
+    
+        "dom": "<'row mb-3 mt-3'<'ml-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-start'l><'mr-3 col-sm-12 col-md-6 d-flex align-items-center justify-content-end'f>>" +
+            "<'row'<'col-sm-12'tr>>" +
+            "<'row mb-3 mt-3'<'col-sm-12 col-md-5'i><'ml-3 col-sm-12 col-md-7'p>>",
     });
 </script>
 @endpush

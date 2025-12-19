@@ -120,17 +120,35 @@
 
     <table class="signature-table">
         <tr>
-            <td>
+            {{-- KOLOM DIREKTUR --}}
+            <td width="50%">
                 <br>
-                Direktur RSU Kertha Usada Singaraja
-                <div class="signature-space"></div>
-                dr. I Wayan Parna Arianta, MARS
+                Direktur RSU Kertha Usada
+                
+                <div class="signature-space" style="position: relative;">
+                    @if($ttdDirektur)
+                        {{-- Tampilkan hasil Base64 --}}
+                        <img src="{{ $ttdDirektur }}" 
+                             style="width: 50px; height: auto; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);">
+                    @endif
+                </div>
+
+                ( <strong>dr. I Wayan Parna Arianta, MARS</strong> )
             </td>
-            <td>
-                Singaraja, {{ \Carbon\Carbon::parse($rab->tanggal_disetujui ?? $rab->tanggal_dibuat)->format('d F Y') }}<br>
-                Kepala Bidang Penunjang Medis
-                <div class="signature-space"></div>
-                dr. I Komang Heri Sukrastawan
+            {{-- KOLOM MANAJER --}}
+            <td width="50%">
+                Singaraja, {{ \Carbon\Carbon::parse($rab->direktur_at ?? now())->format('d F Y') }}<br>
+                Direktur RSU Kertha Usada
+                
+                <div class="signature-space" style="position: relative;">
+                    @if($ttdManager)
+                        {{-- Tampilkan hasil Base64 --}}
+                        <img src="{{ $ttdManager }}" 
+                             style="width: 50px; height: auto; position: absolute; top: 10px; left: 50%; transform: translateX(-50%);">
+                    @endif
+                </div>
+
+                ( <strong>dr. I Komang Heri Sukrastawan</strong> )
             </td>
         </tr>
     </table>

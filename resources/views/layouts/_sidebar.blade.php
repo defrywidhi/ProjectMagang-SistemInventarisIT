@@ -81,7 +81,7 @@
                 @endrole
 
                 {{-- Menu RAB --}}
-                @role('admin|manager')
+                @role('admin|manager|direktur')
                 <li class="nav-item {{ request()->is('rab*') ? 'menu-open' : '' }}">
                     <a href="#" class="nav-link {{ request()->is('rab*') ? 'active' : '' }}">
                         <i class="nav-icon bi bi-file-earmark-check-fill"></i>

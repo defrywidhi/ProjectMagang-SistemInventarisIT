@@ -8,8 +8,9 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\RabDetail;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Illuminate\Support\Facades\Mail; // <-- Wajib ada
-use App\Models\User; // <-- Wajib ada buat cari email Manajer
+use Illuminate\Support\Facades\Mail;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class RabController extends Controller
 {
@@ -22,18 +23,57 @@ class RabController extends Controller
         $rabs = Rab::with(['pengaju', 'penyetuju'])->latest()->get();
         return view('rab.index', compact('rabs'));
     }
+
+
     /**
      * Show the form for creating a new resource.
-     */
+    */
     public function create()
     {
         return view('rab.create');
     }
+    
+    // ==============================================================
+    // ====================== KUMPULAN METHOD LAMA ==================
+    // ==============================================================
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    /**public function store(Request $request)
+     {
+        //
+        $validatedData = $request->validate([
+            'judul' => 'required|string|max:255',
+            'tanggal_dibuat' => 'required|date',
+        ]);
+        
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['status'] = 'Draft';
+        
+        $tanggal = Carbon::parse($validatedData['tanggal_dibuat']);
+        $tahun = $tanggal->format('Y');
+        $bulan = $tanggal->format('m');
+        
+        $nomorUrutTerakhir = Rab::whereYear('tanggal_dibuat', $tahun)
+        ->whereMonth('tanggal_dibuat', $bulan)
+        ->max('id');
+        
+        $nomorUrutBaru = $nomorUrutTerakhir ? $nomorUrutTerakhir + 1 : 1;
+        
+        $nomorUrutFormatted = str_pad($nomorUrutBaru, 3, '0', STR_PAD_LEFT);
+        
+        $validatedData['kode_rab'] = "RAB/{$tahun}/{$bulan}/{$nomorUrutFormatted}";
+        
+        Rab::create($validatedData);
+        
+        return redirect()->route('rab.index')->with('success', 'Rab Baru Berhasil Dibuat');
+    }*/
+    
+    /**public function edit(Rab $rab)
+    {
+        //
+        return view('rab.edit', compact('rab'));
+    }*/
+    
+    /**public function update(Request $request, Rab $rab)
     {
         //
         $validatedData = $request->validate([
@@ -41,9 +81,82 @@ class RabController extends Controller
             'tanggal_dibuat' => 'required|date',
         ]);
 
+        $rab->update($request->only(['judul', 'tanggal_dibuat']));
+
+        return redirect()->route('rab.index')->with('success_edit', 'Rab Berhasil Diperbaharui');
+    }*/
+
+    /*public function editDetail(RabDetail $rab_detail)
+    {
+        //
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
+            return redirect()->route('rab.show', $rab_detail->rab_id)
+                ->with('error', 'Item tidak dapat diedit karena RAB sudah ' . $rab_detail->rab->status . '!');
+        }
+
+        return view('rab_details.edit', compact('rab_detail'));
+    }*/
+
+    /*public function updateDetail(Request $request, RabDetail $rab_detail)
+    {
+
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
+            return redirect()->route('rab.show', $rab_detail->rab_id)
+                ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
+        }
+
+        // 1. Validasi input dari form
+        $validatedData = $request->validate([
+            'nama_barang_diajukan' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:1',
+            'perkiraan_harga_satuan' => 'required|integer|min:1',
+            'ongkir' => 'nullable|integer|min:0',
+            'asuransi' => 'nullable|integer|min:0',
+        ]);
+
+        $jumlah = $validatedData['jumlah'];
+        $harga = $validatedData['perkiraan_harga_satuan'];
+        $ongkir = $request->input('ongkir', 0); // Ambil ongkir, default 0 jika null
+        $asuransi = $request->input('asuransi', 0); // Ambil asuransi, default 0 jika null
+
+        $validatedData['total_harga'] = ($jumlah * $harga) + $ongkir + $asuransi;
+
+        $rab_detail->update($validatedData);
+
+        return redirect()->route('rab.show', $rab_detail->rab_id)
+            ->with('success', 'Item RAB Berhasil Diperbaharui');
+    }*/
+
+    // =====================================================================
+    // =============== AKHIR KUMPULAN METHOD LAMA =========================
+    // =====================================================================
+
+    // =====================================================================
+    // =============== AWAL KUMPULAN METHOD BARU ==========================
+    // =====================================================================
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        // 1. Validasi
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'judul' => 'required|string|max:255',
+            'tanggal_dibuat' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        $validatedData = $validator->validated();
         $validatedData['user_id'] = Auth::id();
         $validatedData['status'] = 'Draft';
 
+        // 2. Generate Kode RAB (Logika Lama Tetap Dipakai)
         $tanggal = Carbon::parse($validatedData['tanggal_dibuat']);
         $tahun = $tanggal->format('Y');
         $bulan = $tanggal->format('m');
@@ -53,16 +166,136 @@ class RabController extends Controller
             ->max('id');
 
         $nomorUrutBaru = $nomorUrutTerakhir ? $nomorUrutTerakhir + 1 : 1;
-
         $nomorUrutFormatted = str_pad($nomorUrutBaru, 3, '0', STR_PAD_LEFT);
 
         $validatedData['kode_rab'] = "RAB/{$tahun}/{$bulan}/{$nomorUrutFormatted}";
 
+        // 3. Simpan
         Rab::create($validatedData);
+
+        // 4. Return JSON jika AJAX
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'RAB berhasil dibuat!']);
+        }
 
         return redirect()->route('rab.index')->with('success', 'Rab Baru Berhasil Dibuat');
     }
 
+    /**
+     * Show the form for editing (Modifikasi untuk AJAX).
+     */
+    public function edit(Rab $rab)
+    {
+        // Jika request via AJAX (dari tombol edit di index), kirim data JSON
+        if (request()->ajax()) {
+            return response()->json($rab);
+        }
+
+        // Fallback jika akses via URL langsung (jarang dipakai kalau sudah SPA)
+        return view('rab.edit', compact('rab'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, Rab $rab)
+    {
+        // 1. Validasi
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'judul' => 'required|string|max:255',
+            'tanggal_dibuat' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->ajax()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // 2. Cek Status (Proteksi)
+        // Hanya boleh edit Judul/Tanggal jika status masih Draft/Ditolak
+        if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
+            if ($request->ajax()) {
+                return response()->json(['status' => 'error', 'message' => 'Gagal! RAB sudah diproses, tidak bisa diedit.'], 403);
+            }
+            return back()->with('error', 'RAB tidak bisa diedit karena status sudah ' . $rab->status);
+        }
+
+        // 3. Update
+        $rab->update($request->only(['judul', 'tanggal_dibuat']));
+
+        // 4. Return JSON
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'RAB berhasil diperbarui!']);
+        }
+
+        return redirect()->route('rab.index')->with('success_edit', 'Rab Berhasil Diperbaharui');
+    }
+
+    public function editDetail(RabDetail $rab_detail)
+    {
+        // Cek Status (Proteksi)
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
+             if (request()->ajax()) {
+                return response()->json(['message' => 'Tidak bisa diedit karena status RAB sudah ' . $rab_detail->rab->status], 403);
+            }
+            return redirect()->route('rab.show', $rab_detail->rab_id)
+                ->with('error', 'Item tidak dapat diedit!');
+        }
+
+        // --- UBAHAN: JIKA AJAX, KIRIM JSON ---
+        if (request()->ajax()) {
+            return response()->json($rab_detail);
+        }
+
+        // Fallback view lama (jika diakses langsung via URL)
+        return view('rab_details.edit', compact('rab_detail'));
+    }
+
+    public function updateDetail(Request $request, RabDetail $rab_detail)
+    {
+        // Cek Status
+        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Gagal update! Status RAB terkunci.'], 403);
+            }
+            return back()->with('error', 'Gagal update!');
+        }
+
+        // 1. Validasi
+        $validatedData = $request->validate([
+            'nama_barang_diajukan' => 'required|string|max:255',
+            'jumlah' => 'required|integer|min:1',
+            'perkiraan_harga_satuan' => 'required|integer|min:1',
+            'ongkir' => 'nullable|integer|min:0',
+            'asuransi' => 'nullable|integer|min:0',
+        ]);
+
+        // 2. Hitung Ulang Total
+        $jumlah = $validatedData['jumlah'];
+        $harga = $validatedData['perkiraan_harga_satuan'];
+        $ongkir = $request->input('ongkir', 0);
+        $asuransi = $request->input('asuransi', 0);
+
+        $validatedData['total_harga'] = ($jumlah * $harga) + $ongkir + $asuransi;
+
+        // 3. Update
+        $rab_detail->update($validatedData);
+
+        // --- UBAHAN: RETURN JSON JIKA AJAX ---
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Item berhasil diperbarui!']);
+        }
+
+        return redirect()->route('rab.show', $rab_detail->rab_id)
+            ->with('success', 'Item RAB Berhasil Diperbaharui');
+    }
+
+
+    // =====================================================================
+    // =============== AKHIR METHOD BARU ==================================
+    // =====================================================================
 
     public function storeDetail(Request $request, Rab $rab)
     {
@@ -102,72 +335,6 @@ class RabController extends Controller
         //
         $rab->load(['details', 'pengaju', 'penyetuju']);
         return view('rab.show', compact('rab'));
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Rab $rab)
-    {
-        //
-        return view('rab.edit', compact('rab'));
-    }
-
-    public function editDetail(RabDetail $rab_detail)
-    {
-        //
-        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
-            return redirect()->route('rab.show', $rab_detail->rab_id)
-                ->with('error', 'Item tidak dapat diedit karena RAB sudah ' . $rab_detail->rab->status . '!');
-        }
-
-        return view('rab_details.edit', compact('rab_detail'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Rab $rab)
-    {
-        //
-        $validatedData = $request->validate([
-            'judul' => 'required|string|max:255',
-            'tanggal_dibuat' => 'required|date',
-        ]);
-
-        $rab->update($request->only(['judul', 'tanggal_dibuat']));
-
-        return redirect()->route('rab.index')->with('success_edit', 'Rab Berhasil Diperbaharui');
-    }
-
-    public function updateDetail(Request $request, RabDetail $rab_detail)
-    {
-
-        if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
-            return redirect()->route('rab.show', $rab_detail->rab_id)
-                ->with('error', 'Item tidak dapat diupdate karena RAB sudah ' . $rab_detail->rab->status . '!');
-        }
-
-        // 1. Validasi input dari form
-        $validatedData = $request->validate([
-            'nama_barang_diajukan' => 'required|string|max:255',
-            'jumlah' => 'required|integer|min:1',
-            'perkiraan_harga_satuan' => 'required|integer|min:1',
-            'ongkir' => 'nullable|integer|min:0',
-            'asuransi' => 'nullable|integer|min:0',
-        ]);
-
-        $jumlah = $validatedData['jumlah'];
-        $harga = $validatedData['perkiraan_harga_satuan'];
-        $ongkir = $request->input('ongkir', 0); // Ambil ongkir, default 0 jika null
-        $asuransi = $request->input('asuransi', 0); // Ambil asuransi, default 0 jika null
-
-        $validatedData['total_harga'] = ($jumlah * $harga) + $ongkir + $asuransi;
-
-        $rab_detail->update($validatedData);
-
-        return redirect()->route('rab.show', $rab_detail->rab_id)
-            ->with('success', 'Item RAB Berhasil Diperbaharui');
     }
 
 
@@ -215,104 +382,267 @@ class RabController extends Controller
 
 
     // Function untuk mengajukan RAB
+    // public function ajukanApproval(Request $request, Rab $rab)
+    // {
+    //     if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
+    //         return redirect()->route('rab.show', $rab->id)
+    //             ->with('error', 'RAB tidak dapat diajukan karena sudah ' . $rab->status . '!');
+    //     }
+
+    //     if ($rab->details()->count() == 0) {
+    //         return redirect()->route('rab.show', $rab->id)
+    //             ->with('error', 'RAB tidak dapat diajukan karena tidak memiliki rincian barang!');
+    //     }
+
+    //     $rab->status = 'Menunggu Approval';
+    //     $rab->approved_by = null;
+    //     $rab->tanggal_disetujui = null;
+    //     $rab->catatan_approval = null;
+    //     $rab->save();
+
+    //     // ---- TAMBAHKAN KODE INI (KIRIM EMAIL KE SEMUA MANAJER) ----
+    //     // Cari semua user yang punya role 'manager'
+    //     $managers = User::role('manager')->get();
+
+    //     // ...
+    //     foreach ($managers as $manager) {
+    //         Mail::send('emails.rab-ajukan', ['rab' => $rab], function ($message) use ($manager, $rab) {
+    //             $message->to($manager->email);
+
+    //             // LOGIKA SUBJECT DINAMIS
+    //             if ($rab->catatan_approval) {
+    //                 $subject = '[REVISI] Menunggu Approval: ' . $rab->judul;
+    //             } else {
+    //                 $subject = '[BARU] Menunggu Approval: ' . $rab->judul;
+    //             }
+
+    //             $message->subject($subject);
+    //         });
+    //     }
+
+    //     return redirect()->route('rab.show', $rab->id)->with('success', 'RAB berhasil diajukan! Notifikasi terkirim ke Manajer.');
+    // }
+
+    // // method untuk approval RAB
+    // public function approveRAB(Request $request, Rab $rab)
+    // {
+    //     if ($rab->status != 'Menunggu Approval') {
+    //         return redirect()->route('rab.show', $rab->id)
+    //             ->with('error', 'RAB tidak dapat disetujui');
+    //     }
+
+    //     $rab->status = 'Disetujui';
+    //     $rab->approved_by = Auth::id();
+    //     $rab->tanggal_disetujui = Carbon::now();
+    //     $rab->save();
+
+    //     // Kirim email ke pengaju
+    //     Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+    //         $message->to($rab->pengaju->email);
+    //         $message->subject('RAB DISETUJUI: ' . $rab->kode_rab);
+    //     });
+
+    //     return redirect()->route('rab.show', $rab->id)
+    //         ->with('success', 'RAB Berhasil Disetujui');
+    // }
+
+    // // metod untuk menolak RAB
+    // public function rejectRAB(Request $request, Rab $rab)
+    // {
+    //     if ($rab->status != 'Menunggu Approval') {
+    //         return redirect()->route('rab.show', $rab->id)
+    //             ->with('error', 'RAB tidak dapat ditolak');
+    //     }
+
+    //     $request->validate([
+    //         'catatan_approval' => 'required|string|max:255',
+    //     ]);
+
+    //     $rab->status = 'Ditolak';
+    //     $rab->approved_by = Auth::id();
+    //     $rab->tanggal_disetujui = Carbon::now();
+    //     $rab->catatan_approval = $request->catatan_approval;
+    //     $rab->save();
+
+    //     // Kirim email ke pengaju
+    //     Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+    //         $message->to($rab->pengaju->email);
+    //         $message->subject('RAB DITOLAK: ' . $rab->kode_rab);
+    //     });
+
+    //     return redirect()->route('rab.show', $rab->id)
+    //         ->with('success', 'RAB Berhasil Ditolak');
+    // }
+
+    /**
+     * TAHAP 1: ADMIN MENGAJUKAN KE MANAJER
+     * Menggantikan method ajukanApproval yang lama
+     */
     public function ajukanApproval(Request $request, Rab $rab)
     {
+        // 1. Validasi Status (Hanya Draft atau Ditolak yang bisa diajukan)
         if ($rab->status != 'Draft' && $rab->status != 'Ditolak') {
             return redirect()->route('rab.show', $rab->id)
-                ->with('error', 'RAB tidak dapat diajukan karena sudah ' . $rab->status . '!');
+                ->with('error', 'RAB tidak dapat diajukan karena status: ' . $rab->status);
         }
 
+        // 2. Validasi Isi Barang
         if ($rab->details()->count() == 0) {
             return redirect()->route('rab.show', $rab->id)
-                ->with('error', 'RAB tidak dapat diajukan karena tidak memiliki rincian barang!');
+                ->with('error', 'RAB kosong! Mohon isi rincian barang terlebih dahulu.');
         }
 
-        $rab->status = 'Menunggu Approval';
-        $rab->approved_by = null;
-        $rab->tanggal_disetujui = null;
+        // 3. Update Status ke Level 1 (Menunggu Manager)
+        $rab->status = 'Menunggu Manager'; 
+        
+        // 4. Reset Data Approval Lama (Jika ini pengajuan ulang setelah ditolak)
+        // Kita kosongkan jejak approval sebelumnya biar bersih
+        $rab->manager_id = null;
+        $rab->manager_at = null;
+        $rab->direktur_id = null;
+        $rab->direktur_at = null;
         $rab->catatan_approval = null;
         $rab->save();
 
-        // ---- TAMBAHKAN KODE INI (KIRIM EMAIL KE SEMUA MANAJER) ----
-        // Cari semua user yang punya role 'manager'
+        // 5. Kirim Email ke Semua Manajer
+        // (Logika email Abang yang lama tetap dipakai, hanya subject disesuaikan)
         $managers = User::role('manager')->get();
-
-        // ...
         foreach ($managers as $manager) {
-            Mail::send('emails.rab-ajukan', ['rab' => $rab], function ($message) use ($manager, $rab) {
-                $message->to($manager->email);
-
-                // LOGIKA SUBJECT DINAMIS
-                if ($rab->catatan_approval) {
-                    $subject = '[REVISI] Menunggu Approval: ' . $rab->judul;
-                } else {
-                    $subject = '[BARU] Menunggu Approval: ' . $rab->judul;
-                }
-
-                $message->subject($subject);
-            });
+            try {
+                Mail::send('emails.rab-ajukan', ['rab' => $rab], function ($message) use ($manager, $rab) {
+                    $message->to($manager->email);
+                    $subject = $rab->catatan_approval 
+                        ? '[REVISI] Menunggu Approval Manajer: ' . $rab->judul 
+                        : '[BARU] Menunggu Approval Manajer: ' . $rab->judul;
+                    $message->subject($subject);
+                });
+            } catch (\Exception $e) {
+                // Biarkan lanjut meski email gagal (opsional: log error)
+            }
         }
-        // ...
-        // -----------------------------------------------------------
-
-        return redirect()->route('rab.show', $rab->id)->with('success', 'RAB berhasil diajukan! Notifikasi terkirim ke Manajer.');
-    }
-
-    // method untuk approval RAB
-    public function approveRAB(Request $request, Rab $rab)
-    {
-        if ($rab->status != 'Menunggu Approval') {
-            return redirect()->route('rab.show', $rab->id)
-                ->with('error', 'RAB tidak dapat disetujui');
-        }
-
-        $rab->status = 'Disetujui';
-        $rab->approved_by = Auth::id();
-        $rab->tanggal_disetujui = Carbon::now();
-        $rab->save();
-
-        // Kirim email ke pengaju
-        Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
-            $message->to($rab->pengaju->email);
-            $message->subject('RAB DISETUJUI: ' . $rab->kode_rab);
-        });
 
         return redirect()->route('rab.show', $rab->id)
-            ->with('success', 'RAB Berhasil Disetujui');
+            ->with('success', 'RAB berhasil diajukan ke Manajer.');
     }
 
-    // metod untuk menolak RAB
-    public function rejectRAB(Request $request, Rab $rab)
+    /**
+     * TAHAP 2: MANAJER MENYETUJUI (LEVEL 1)
+     * Method BARU pengganti approveRAB
+     */
+    public function approveManager(Request $request, Rab $rab)
     {
-        if ($rab->status != 'Menunggu Approval') {
-            return redirect()->route('rab.show', $rab->id)
-                ->with('error', 'RAB tidak dapat ditolak');
+        // 1. Cek Status (Harus Menunggu Manager)
+        if ($rab->status != 'Menunggu Manager') {
+            return back()->with('error', 'Gagal! Status RAB tidak valid untuk disetujui Manajer.');
         }
 
+        // 2. Verifikasi Password (Tanda Tangan Keamanan)
+        $request->validate(['password' => 'required']);
+        
+        if (!Hash::check($request->password, Auth::user()->password)) {
+            return back()->with('error', 'Password Salah! Gagal menyetujui dokumen.');
+        }
+
+        // 3. Cek Apakah User Punya TTD di Profile?
+        if (!Auth::user()->ttd) {
+            return back()->with('error', 'Anda belum mengupload Tanda Tangan Digital di menu Profil.');
+        }
+
+        // 4. Update RAB (Naik ke Level 2: Direktur)
+        $rab->update([
+            'status' => 'Menunggu Direktur',
+            'manager_id' => Auth::id(),
+            'manager_at' => now(),
+        ]);
+
+        // (Opsional: Di sini bisa tambah logic kirim email ke Direktur)
+
+        return back()->with('success', 'Disetujui Manajer! Dokumen diteruskan ke Direktur.');
+    }
+
+    /**
+     * TAHAP 3: DIREKTUR MENYETUJUI (LEVEL 2 - FINAL)
+     * Method BARU
+     */
+    public function approveDirektur(Request $request, Rab $rab)
+    {
+        // 1. Cek Status (Harus Menunggu Direktur)
+        if ($rab->status != 'Menunggu Direktur') {
+            return back()->with('error', 'Gagal! RAB belum disetujui Manajer atau sudah selesai.');
+        }
+
+        // 2. Verifikasi Password
+        $request->validate(['password' => 'required']);
+
+        if (!Hash::check($request->password, Auth::user()->password)) {
+            return back()->with('error', 'Password Salah! Gagal menyetujui dokumen.');
+        }
+
+        // 3. Cek Tanda Tangan
+        if (!Auth::user()->ttd) {
+            return back()->with('error', 'Anda belum mengupload Tanda Tangan Digital di menu Profil.');
+        }
+
+        // 4. Update RAB (FINAL)
+        $rab->update([
+            'status' => 'Disetujui',
+            'direktur_id' => Auth::id(),
+            'direktur_at' => now(),
+        ]);
+
+        // 5. Kirim Email Notifikasi ke Pengaju (Bahwa RAB sudah Goal)
+        try {
+            Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+                $message->to($rab->pengaju->email);
+                $message->subject('RAB DISETUJUI (FINAL): ' . $rab->kode_rab);
+            });
+        } catch (\Exception $e) {}
+
+        return back()->with('success', 'RAB Telah Disetujui Sepenuhnya (FINAL).');
+    }
+
+    /**
+     * METHOD MENOLAK (REJECT)
+     * Update agar bisa dipakai Manager maupun Direktur
+     */
+    public function rejectRAB(Request $request, Rab $rab)
+    {
+        // 1. Validasi Status (Bisa ditolak di tahap Manager maupun Direktur)
+        if ($rab->status != 'Menunggu Manager' && $rab->status != 'Menunggu Direktur') {
+            return back()->with('error', 'RAB tidak dalam status menunggu approval, tidak bisa ditolak.');
+        }
+
+        // 2. Validasi Input Alasan
         $request->validate([
             'catatan_approval' => 'required|string|max:255',
         ]);
 
+        // 3. Update Status jadi Ditolak
+        // Kita tidak perlu simpan siapa yg nolak di kolom khusus, cukup di logs/history kalau mau.
+        // Di sini kita reset kolom approval agar jelas.
         $rab->status = 'Ditolak';
-        $rab->approved_by = Auth::id();
-        $rab->tanggal_disetujui = Carbon::now();
-        $rab->catatan_approval = $request->catatan_approval;
+        $rab->catatan_approval = $request->catatan_approval . ' (Ditolak oleh: ' . Auth::user()->name . ')';
+        
+        // Reset approval (Opsional: tergantung kebijakan, mau direset atau dibiarkan history-nya)
+        // Di sini saya biarkan history approval manager jika yang nolak direktur, 
+        // tapi statusnya tetap Ditolak.
         $rab->save();
 
-        // Kirim email ke pengaju
-        Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
-            $message->to($rab->pengaju->email);
-            $message->subject('RAB DITOLAK: ' . $rab->kode_rab);
-        });
+        // 4. Kirim Email Penolakan ke Pengaju
+        try {
+            Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+                $message->to($rab->pengaju->email);
+                $message->subject('RAB DITOLAK: ' . $rab->kode_rab);
+            });
+        } catch (\Exception $e) {}
 
-        return redirect()->route('rab.show', $rab->id)
-            ->with('success', 'RAB Berhasil Ditolak');
+        return back()->with('success', 'RAB Berhasil Ditolak.');
     }
 
     /**
      * Mengambil detail RAB sebagai JSON untuk AJAX.
      */
-    public function getRabDetailsJson(Rab $rab)
+    public function getDetailsJson(Rab $rab)
     {
         // Kita ambil detailnya menggunakan relasi 'details' yang sudah kita buat
         $details = $rab->details;
@@ -326,25 +656,36 @@ class RabController extends Controller
      */
     public function cetakPDF(Rab $rab)
     {
-        // 1. Pastikan RAB sudah disetujui
-        if ($rab->status != 'Disetujui') {
-            return redirect()->route('rab.show', $rab->id)->with('error', 'Hanya RAB yang sudah Disetujui yang bisa dicetak.');
-        }
+        // if ($rab->status != 'Disetujui') {
+        //     return redirect()->route('rab.show', $rab->id)->with('error', 'Hanya RAB Disetujui yang bisa dicetak.');
+        // }
 
-        // 2. Ambil data (kita load relasi biar tidak error)
-        $rab->load(['details', 'pengaju', 'penyetuju']);
+        $rab->load(['details', 'pengaju', 'manager', 'direktur']);
 
-        // 3. Panggil "Mesin Cetak" (DomPDF)
-        $pdf = PDF::loadView('rab.rab_pdf', compact('rab'));
+        // --- FUNGSI BASE64 DIPINDAH KE SINI ---
+        $encodeImage = function($path) {
+            if ($path && file_exists(storage_path('app/public/' . $path))) {
+                $fullPath = storage_path('app/public/' . $path);
+                $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+                $data = file_get_contents($fullPath);
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+            return null;
+        };
 
-        // 4. Buat nama file YANG AMAN (ganti '/' dengan '-')
-        $kode_rab_safe = str_replace('/', '-', $rab->kode_rab); // Ini akan jadi "RAB-2025-11-001"
-        $namaFile = 'RAB-' . $kode_rab_safe . '.pdf'; // Hasil: "RAB-RAB-2025-11-001.pdf"
+        // Siapkan variabel gambar untuk dikirim ke View
+        $ttdManager = ($rab->manager) ? $encodeImage($rab->manager->ttd) : null;
+        $ttdDirektur = ($rab->direktur) ? $encodeImage($rab->direktur->ttd) : null;
 
-        // 5. Download file PDF-nya
-        return $pdf->stream($namaFile);
+        $data = [
+            'rab' => $rab,
+            'ttdManager' => $ttdManager,   // Kirim variabel ini
+            'ttdDirektur' => $ttdDirektur  // Kirim variabel ini
+        ];
 
-        // (Opsi: jika ingin ditampilkan di browser saja, ganti baris di atas dengan:)
-        // return $pdf->stream($namaFile);
+        $pdf = PDF::loadView('rab.rab_pdf', $data);
+        
+        $kode_rab_safe = str_replace('/', '-', $rab->kode_rab);
+        return $pdf->stream('RAB-' . $kode_rab_safe . '.pdf');
     }
 }

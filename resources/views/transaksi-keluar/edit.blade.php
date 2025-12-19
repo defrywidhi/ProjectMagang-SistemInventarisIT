@@ -17,12 +17,32 @@
                         @method('PUT')
                         <div class="form-group">
                             <label for="barang_it_id">Barang Yang Keluar</label>
-                            <select class="form-control @error('barang_it_id') is-invalid @enderror" id="barang_it_id" name="barang_it_id" required>
+                            <!-- <select class="form-control @error('barang_it_id') is-invalid @enderror" id="barang_it_id" name="barang_it_id" required>
                                 <option value=""> -- Pilih Barang -- </option>
                                 @foreach($barangs as $item)
                                 <option value="{{ $item->id }}" {{ old('barang_it_id', $transaksi_keluar->barang_it_id) == $item->id ? 'selected' : '' }}>
                                     {{ $item->nama_barang }} (Stok: {{ $item->stok }})
                                 </option>
+                                @endforeach
+                            </select> -->
+                            <select class="form-control @error('barang_it_id') is-invalid @enderror" id="barang_it_id" name="barang_it_id" required>
+                                <option value=""> -- Pilih Barang -- </option>
+                                @foreach($barangs as $item)
+                                    {{-- Tampilkan barang jika: 
+                                        1. Kondisinya baru atau bekas
+                                        2. Atau barang tersebut adalah barang yang sedang dipakai di transaksi ini --}}
+                                    @if(
+                                        in_array($item->kondisi, ['baru', 'bekas']) || 
+                                        $item->id == $transaksi_keluar->barang_it_id
+                                    )
+                                        <option value="{{ $item->id }}" 
+                                            {{ old('barang_it_id', $transaksi_keluar->barang_it_id) == $item->id ? 'selected' : '' }}>
+                                            {{ $item->nama_barang }} (Stok: {{ $item->stok }})
+                                            @if($item->kondisi == 'rusak')
+                                                - [KONDISI RUSAK - data awal]
+                                            @endif
+                                        </option>
+                                    @endif
                                 @endforeach
                             </select>
                             @error('barang_it_id')

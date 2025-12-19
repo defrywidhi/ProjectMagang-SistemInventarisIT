@@ -14,31 +14,39 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Jalankan pabrik Roles & Permissions DULU
+        // Jalankan pabrik Roles & Permissions DULU
         $this->call(RolesAndPermissionsSeeder::class);
 
-        // 2. Buat User Admin pertama kita
-        $adminUser = User::factory()->create([
-            'name' => 'Admin Inventory', // Ganti namanya jadi lebih keren
-            'email' => 'admin@rumahsakit.com', // Email untuk login
-            'password' => bcrypt('1234'), // Ganti passwordnya (nanti bisa kamu ganti sendiri)
+        // Buat User Admin pertama kita
+        $admin = User::create([
+            'name' => 'Admin Gudang',
+            'email' => 'admin@test.com',
+            'password' => bcrypt('1234'),
         ]);
+        $admin->assignRole('admin');
 
-        // 3. "Kasih" dia gantungan kunci 'admin'
-        // Ini adalah "jurus" dari Spatie
-        $adminUser->assignRole('admin'); 
-
-        // (Opsional) Buat beberapa user teknisi palsu untuk tes
-        User::factory()->create([
-            'name' => 'Teknisi A',
-            'email' => 'teknisi.a@rumahsakit.com',
+        // Buat Akun MANAJER (Untuk Approval Tahap 1)
+        $manager = User::create([
+            'name' => 'Bapak Manajer',
+            'email' => 'manager@test.com',
             'password' => bcrypt('1234'),
-        ])->assignRole('teknisi');
+        ]);
+        $manager->assignRole('manager');
 
-        User::factory()->create([
-            'name' => 'Manajer IT',
-            'email' => 'manajer.it@rumahsakit.com',
+        // Buat Akun DIREKTUR (Untuk Approval Tahap 2 - Final)
+        $direktur = User::create([
+            'name' => 'Bapak Direktur',
+            'email' => 'direktur@test.com',
             'password' => bcrypt('1234'),
-        ])->assignRole('manager');
+        ]);
+        $direktur->assignRole('direktur');
+        
+        // Akun Teknisi
+        $teknisi = User::create([
+            'name' => 'Teknisi Lapangan',
+            'email' => 'teknisi@test.com',
+            'password' => bcrypt('1234'),
+        ]);
+        $teknisi->assignRole('teknisi');
     }
 }

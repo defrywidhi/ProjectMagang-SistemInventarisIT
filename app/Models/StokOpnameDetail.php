@@ -11,18 +11,24 @@ class StokOpnameDetail extends Model
         'stok_opname_id',
         'barang_it_id',
         'stok_sistem',
-        'stok_fisik',
+        'stok_fisik', 
         'selisih',
+        'status_fisik',
         'keterangan_item',
     ];
 
-    public function stokOpname()
+    public function header()
     {
-        return $this->belongsTo(StokOpname::class);
+        return $this->belongsTo(StokOpname::class, 'stok_opname_id');
     }
 
     public function barangIt()
     {
         return $this->belongsTo(BarangIt::class);
+    }
+
+    public function barang()
+    {
+        return $this->belongsTo(BarangIT::class, 'barang_it_id');
     }
 }
