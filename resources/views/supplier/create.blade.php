@@ -1,0 +1,41 @@
+@extends ('layouts.master')
+
+@section('title', 'Tambah Supplier Baru')
+@section('content_title', 'Tambah Supplier')
+
+@section('content')
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Formulir Tambah Supplier</h3>
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('supplier.store') }}" method="post">
+                        @csrf
+                        <div class="form-group">
+                            <label for="nama_supplier">Nama Supplier</label>
+                            <input value="{{ old('nama_supplier') }}" class="form-control" type="text" name="nama_supplier" id="nama_supplier" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="alamat">Alamat</label>
+                            <input value="{{ old('alamat') }}" class="form-control" type="text" name="alamat" id="alamat" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="nomor_telepon">Nomor Telepon</label>
+                            <input value="{{ old('nomor_telepon') }}" class="form-control" type="text" name="nomor_telepon" id="nomor_telepon" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input value="{{ old('email') }}" class="form-control" type="text" name="email" id="email">
+                        </div>
+                        <div class="mt-5 mb-3">
+                            <button type="submit" class="btn btn-primary">Kirim</button>
+                            <a href="{{ route('supplier.index') }}" class="btn btn-secondary mx-2">Batal</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+@endsection
