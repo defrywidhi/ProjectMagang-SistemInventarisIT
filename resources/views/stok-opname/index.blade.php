@@ -99,10 +99,40 @@
             <form id="formCreateSO">
                 @csrf
                 <div class="modal-body">
-                    {{-- Info Total Barang --}}
-                    <div class="alert alert-info py-2 mb-3">
-                        <i class="bi bi-info-circle"></i> Total Barang Aktif di Sistem: <strong>{{ $totalBarang }}</strong> Item.
+                    
+                    {{-- INFO STATISTIK BARANG (DIPERBAIKI) --}}
+                    <div class="row mb-3 text-center g-2">
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-light">
+                                <small class="d-block text-muted">Total Aset</small>
+                                <strong class="h5">{{ $totalBarang }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-warning bg-opacity-10 text-warning">
+                                <small class="d-block">Cooldown 1 Bln</small>
+                                <strong class="h5">{{ $barangCooldown }}</strong>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 bg-success bg-opacity-10 text-success">
+                                <small class="d-block">Siap Cek</small>
+                                <strong class="h5">{{ $barangSiapOpname }}</strong>
+                            </div>
+                        </div>
                     </div>
+
+                    {{-- ALERT JIKA SEMUA BARANG KENA COOLDOWN --}}
+                    @if($barangSiapOpname <= 0)
+                        <div class="alert alert-danger">
+                            <i class="bi bi-x-circle"></i> <strong>Tidak ada barang yang bisa dicek!</strong><br>
+                            Semua barang aktif sudah di-opname dalam 30 hari terakhir.
+                        </div>
+                    @else
+                        <div class="alert alert-info py-2 mb-3" style="font-size: 0.9em;">
+                            <i class="bi bi-info-circle"></i> Sistem otomatis menyembunyikan {{ $barangCooldown }} barang yang baru saja dicek bulan ini agar pemeriksaan lebih efisien.
+                        </div>
+                    @endif
 
                     <div class="form-group mb-3">
                         <label class="fw-bold">Tanggal Opname</label>
@@ -113,15 +143,19 @@
                     <div class="form-group mb-3">
                         <label class="fw-bold d-block mb-2">Metode Pengecekan</label>
                         
+                        {{-- DISABLE INPUT JIKA TIDAK ADA BARANG --}}
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="metode" id="metodeFull" value="Full" checked>
+                            <input class="form-check-input" type="radio" name="metode" id="metodeFull" value="Full" checked 
+                                {{ $barangSiapOpname <= 0 ? 'disabled' : '' }}>
                             <label class="form-check-label" for="metodeFull">
-                                <span class="badge bg-primary">Full Audit</span> (Cek Semua {{ $totalBarang }} Barang)
+                                <span class="badge bg-primary">Full Audit</span> 
+                                (Cek {{ $barangSiapOpname }} Barang)
                             </label>
                         </div>
                         
                         <div class="form-check form-check-inline mt-2 mt-sm-0">
-                            <input class="form-check-input" type="radio" name="metode" id="metodeRandom" value="Random">
+                            <input class="form-check-input" type="radio" name="metode" id="metodeRandom" value="Random"
+                                {{ $barangSiapOpname <= 0 ? 'disabled' : '' }}>
                             <label class="form-check-label" for="metodeRandom">
                                 <span class="badge bg-info text-dark">Random Sampling</span> (Cek Acak)
                             </label>
@@ -131,8 +165,14 @@
                     {{-- INPUT JUMLAH SAMPEL (Hanya muncul jika Random) --}}
                     <div class="form-group mb-3 p-3 bg-light border rounded" id="divSampel" style="display: none;">
                         <label class="fw-bold text-success">Jumlah Sampel Acak</label>
-                        <input type="number" name="jumlah_sampel" class="form-control" min="1" max="{{ $totalBarang }}" placeholder="Mau cek berapa barang?">
-                        <small class="text-muted">Maksimal: {{ $totalBarang }} barang.</small>
+                        {{-- MAX DISET SESUAI BARANG SIAP --}}
+                        <input type="number" name="jumlah_sampel" class="form-control" 
+                               min="1" max="{{ $barangSiapOpname }}" 
+                               placeholder="Maksimal {{ $barangSiapOpname }} barang">
+                        
+                        <small class="text-muted">
+                            Hanya bisa mengambil maksimal <strong>{{ $barangSiapOpname }}</strong> sampel dari barang yang tersedia (Ready).
+                        </small>
                     </div>
 
                     <div class="form-group mb-3">
@@ -142,7 +182,12 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-success" id="btnSimpan">Mulai Sesi Opname</button>
+                    {{-- TOMBOL MATI KALAU GAK ADA BARANG --}}
+                    @if($barangSiapOpname > 0)
+                        <button type="submit" class="btn btn-success" id="btnSimpan">Mulai Sesi Opname</button>
+                    @else
+                        <button type="button" class="btn btn-secondary" disabled>Tidak Ada Barang</button>
+                    @endif
                 </div>
             </form>
         </div>

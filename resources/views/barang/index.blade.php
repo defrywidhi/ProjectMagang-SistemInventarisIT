@@ -87,7 +87,7 @@
                         <td>{{ $item -> lokasi_penyimpanan ?? '_'}}</td>
                         <td>
                             @if($item->gambar_barang)
-                            <img src="{{ asset('storage/gambar_barang/'. $item->gambar_barang) }}" alt="Gambar Barang" class="object-fit-cover" style="width: 100px; height: 100px;">
+                            <img src="{{ asset('storage/gambar_barang/'. $item->gambar_barang) }}" alt="Gambar Barang" class="img-thumbnail" style="height: 50px; width: auto; object-fit: contain;">
                             @else
                             Tidak Ada Gambar
                             @endif

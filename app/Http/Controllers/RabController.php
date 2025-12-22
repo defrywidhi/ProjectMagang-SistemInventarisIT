@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use App\Models\BarangIT;
 
 class RabController extends Controller
 {
@@ -255,7 +256,8 @@ class RabController extends Controller
 
     public function updateDetail(Request $request, RabDetail $rab_detail)
     {
-        // Cek Status
+        // 1. CEK SECURITY (Dari Code Lama Abang - INI PENTING!)
+        // Mencegah edit jika status bukan Draft/Ditolak
         if ($rab_detail->rab->status != 'Draft' && $rab_detail->rab->status != 'Ditolak') {
             if ($request->ajax()) {
                 return response()->json(['message' => 'Gagal update! Status RAB terkunci.'], 403);
@@ -263,27 +265,37 @@ class RabController extends Controller
             return back()->with('error', 'Gagal update!');
         }
 
-        // 1. Validasi
-        $validatedData = $request->validate([
-            'nama_barang_diajukan' => 'required|string|max:255',
-            'jumlah' => 'required|integer|min:1',
-            'perkiraan_harga_satuan' => 'required|integer|min:1',
-            'ongkir' => 'nullable|integer|min:0',
-            'asuransi' => 'nullable|integer|min:0',
+        // 2. VALIDASI (Diperbaiki)
+        // Kita ganti 'integer' jadi 'numeric' supaya lebih aman untuk nominal uang
+        $request->validate([
+            'nama_barang_diajukan'   => 'required|string|max:255',
+            'jumlah'                 => 'required|integer|min:1',
+            'perkiraan_harga_satuan' => 'required|numeric|min:0',
+            // 'nullable' membolehkan field dikosongkan user
+            'ongkir'                 => 'nullable|numeric|min:0',
+            'asuransi'               => 'nullable|numeric|min:0',
         ]);
 
-        // 2. Hitung Ulang Total
-        $jumlah = $validatedData['jumlah'];
-        $harga = $validatedData['perkiraan_harga_satuan'];
-        $ongkir = $request->input('ongkir', 0);
-        $asuransi = $request->input('asuransi', 0);
+        // 3. LOGIC DATA (Handling Nilai 0)
+        // Jika user mengosongkan input, kita paksa jadi 0
+        $ongkir   = $request->ongkir ?? 0;
+        $asuransi = $request->asuransi ?? 0;
+        $harga    = $request->perkiraan_harga_satuan;
+        $jumlah   = $request->jumlah;
 
-        $validatedData['total_harga'] = ($jumlah * $harga) + $ongkir + $asuransi;
+        // 4. UPDATE DATABASE
+        // Kita update satu per satu biar terkontrol
+        $rab_detail->update([
+            'nama_barang_diajukan'   => $request->nama_barang_diajukan,
+            'jumlah'                 => $jumlah,
+            'perkiraan_harga_satuan' => $harga,
+            'ongkir'                 => $ongkir,
+            'asuransi'               => $asuransi,
+            // Hitung ulang total harga otomatis di sini
+            'total_harga'            => ($jumlah * $harga) + $ongkir + $asuransi
+        ]);
 
-        // 3. Update
-        $rab_detail->update($validatedData);
-
-        // --- UBAHAN: RETURN JSON JIKA AJAX ---
+        // 5. RESPONSE (Dari Code Lama Abang - Sudah Benar)
         if ($request->ajax()) {
             return response()->json(['status' => 'success', 'message' => 'Item berhasil diperbarui!']);
         }
@@ -299,42 +311,84 @@ class RabController extends Controller
 
     public function storeDetail(Request $request, Rab $rab)
     {
-        // 1. Validasi input dari form
-        $validatedData = $request->validate([
-            'nama_barang_diajukan' => 'required|string|max:255',
+        // 1. Validasi Input
+        $request->validate([
+            'tipe_input' => 'required|in:master,custom', // Penentu jalur
             'jumlah' => 'required|integer|min:1',
-            'perkiraan_harga_satuan' => 'required|integer|min:1',
-            'ongkir' => 'nullable|integer|min:0',
-            'asuransi' => 'nullable|integer|min:0',
+            'perkiraan_harga_satuan' => 'required|numeric|min:0',
+            
+            // Validasi Bersyarat
+            'barang_it_id' => 'required_if:tipe_input,master',
+            'nama_barang_custom' => 'required_if:tipe_input,custom',
+            // Foto wajib jika custom, max 2MB
+            'foto_custom' => 'required_if:tipe_input,custom|image|max:2048', 
         ]);
 
-        // 2. Hitung total harga otomatis
-        $jumlah = $validatedData['jumlah'];
-        $harga_satuan = $validatedData['perkiraan_harga_satuan'];
-        $ongkir = $request->input('ongkir', 0); // Ambil ongkir, default 0 jika null
-        $asuransi = $request->input('asuransi', 0); // Ambil asuransi, default 0 jika null
+        // 2. Siapkan Data Dasar
+        $data = [
+            'rab_id' => $rab->id,
+            'jumlah' => $request->jumlah,
+            'perkiraan_harga_satuan' => $request->perkiraan_harga_satuan,
+            'ongkir' => $request->ongkir ?? 0,
+            'asuransi' => $request->asuransi ?? 0,
+            'keterangan' => $request->keterangan, // Simpan keterangan
+        ];
 
-        $validatedData['total_harga'] = ($jumlah * $harga_satuan) + $ongkir + $asuransi;
+        // Hitung Total
+        $data['total_harga'] = ($data['jumlah'] * $data['perkiraan_harga_satuan']) 
+                             + $data['ongkir'] + $data['asuransi'];
 
-        // 3. Tambahkan rab_id
-        $validatedData['rab_id'] = $rab->id;
+        // 3. LOGIKA PERCABANGAN (MASTER vs CUSTOM)
+        if ($request->tipe_input == 'master') {
+            // --- JALUR MASTER ---
+            $barang = \App\Models\BarangIT::find($request->barang_it_id);
+            
+            $data['barang_it_id'] = $request->barang_it_id;
+            $data['nama_barang_custom'] = null;
+            $data['foto_custom'] = null;
+            // Kita tetap isi nama_barang_diajukan agar tampilan tabel konsisten
+            $data['nama_barang_diajukan'] = $barang->nama_barang;
+            
+        } else {
+            // --- JALUR CUSTOM ---
+            $data['barang_it_id'] = null;
+            $data['nama_barang_custom'] = $request->nama_barang_custom;
+            $data['nama_barang_diajukan'] = $request->nama_barang_custom;
 
-        // 4. Simpan data ke tabel rab_details
-        RabDetail::create($validatedData);
+            // Proses Upload Foto
+            if ($request->hasFile('foto_custom')) {
+                // Simpan di folder khusus 'rab_custom' di public storage
+                $path = $request->file('foto_custom')->store('rab_custom', 'public');
+                $data['foto_custom'] = $path;
+            }
+        }
 
-        // 5. Kembalikan ke halaman show dengan pesan sukses
-        return redirect()->route('rab.show', $rab->id)
-            ->with('success', 'Item baru berhasil ditambahkan ke RAB!');
+        // 4. Simpan ke Database
+        \App\Models\RabDetail::create($data);
+
+        return back()->with('success', 'Item berhasil ditambahkan ke RAB.');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Rab $rab)
+    public function show($id)
     {
-        //
-        $rab->load(['details', 'pengaju', 'penyetuju']);
-        return view('rab.show', compact('rab'));
+        // Cari RAB berdasarkan ID
+        $rab = Rab::findOrFail($id);
+
+        // Load relasi yang dibutuhkan (biar tidak error di view)
+        // Sesuaikan dengan relasi yang Abang punya (pengaju, manager, direktur, details)
+        $rab->load(['details.barang_it', 'pengaju', 'manager', 'direktur']);
+
+        // --- 2. TAMBAHKAN INI ---
+        // Ambil data Master Barang untuk Dropdown Pilihan
+        // Kita urutkan berdasarkan nama biar rapi
+        $barangs = BarangIT::orderBy('nama_barang', 'asc')->get();
+
+        // --- 3. KIRIM KE VIEW ---
+        // Masukkan 'barangs' ke dalam compact
+        return view('rab.show', compact('rab', 'barangs'));
     }
 
 
@@ -345,9 +399,11 @@ class RabController extends Controller
     {
         // 1. Ambil user yang sedang login
         /** @var \App\Models\User $user */
-        $user = Auth::user();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
-        // 2. Validasi Status & Role
+        // ----------------------------------------------------
+        // A. CEK PERMISSION (DARI KODE LAMA ABANG)
+        // ----------------------------------------------------
         // Cek apakah user BUKAN admin?
         if (!$user->hasRole('admin')) {
             // Jika bukan admin, dia HANYA boleh menghapus status Draft atau Ditolak
@@ -357,8 +413,22 @@ class RabController extends Controller
             }
         }
 
-        // 3. Lakukan Penghapusan
-        // Kita biarkan detail terhapus otomatis oleh database (Cascade On Delete)
+        // ----------------------------------------------------
+        // B. CEK INTEGRITAS DATA (SOLUSI BARU - PREVENTION)
+        // ----------------------------------------------------
+        // Ini berlaku untuk SEMUA user (termasuk Admin)
+        // Jangan sampai RAB dihapus tapi Transaksi Masuknya ketinggalan jadi hantu
+        if ($rab->transaksiMasuks()->exists()) {
+            return back()->with('error', 'GAGAL HAPUS! RAB ini sudah memiliki data Barang Masuk (Transaksi). Mohon hapus data di menu Transaksi Masuk terlebih dahulu demi keamanan stok.');
+        }
+
+        // ----------------------------------------------------
+        // C. EKSEKUSI PENGHAPUSAN
+        // ----------------------------------------------------
+        // Kita hapus detailnya dulu secara eksplisit (Good Practice)
+        $rab->details()->delete();
+        
+        // Hapus Header RAB
         $rab->delete();
 
         return redirect()->route('rab.index')->with('success', 'RAB Berhasil Dihapus');
@@ -536,34 +606,42 @@ class RabController extends Controller
             return back()->with('error', 'Gagal! Status RAB tidak valid untuk disetujui Manajer.');
         }
 
-        // 2. Verifikasi Password (Tanda Tangan Keamanan)
-        $request->validate(['password' => 'required']);
-        
-        if (!Hash::check($request->password, Auth::user()->password)) {
-            return back()->with('error', 'Password Salah! Gagal menyetujui dokumen.');
+        $user = \Illuminate\Support\Facades\Auth::user();
+
+        // A. Cek dulu, apakah Manager ini sudah bikin PIN di profilnya?
+        if (!$user->pin_approval) {
+            return back()->with('error', 'Anda belum mengatur PIN Approval. Silakan atur di menu Profil terlebih dahulu.');
         }
 
-        // 3. Cek Apakah User Punya TTD di Profile?
-        if (!Auth::user()->ttd) {
+        // B. Validasi Input (Pastikan input bernama 'pin' 6 digit)
+        $request->validate([
+            'pin' => 'required|digits:6',
+        ]);
+        
+        // C. Cek Apakah PIN Cocok?
+        if (!\Illuminate\Support\Facades\Hash::check($request->pin, $user->pin_approval)) {
+            return back()->with('error', 'PIN Approval Salah! Gagal menyetujui dokumen.');
+        }
+
+        // 3. Cek Apakah User Punya TTD?
+        // Pastikan nama kolom di database Anda 'tanda_tangan' atau 'ttd'. 
+        // Sesuaikan code di bawah ini:
+        if (!$user->ttd) { 
             return back()->with('error', 'Anda belum mengupload Tanda Tangan Digital di menu Profil.');
         }
 
         // 4. Update RAB (Naik ke Level 2: Direktur)
         $rab->update([
             'status' => 'Menunggu Direktur',
-            'manager_id' => Auth::id(),
+            'manager_id' => $user->id,
             'manager_at' => now(),
+            // Simpan snapshot tanda tangan manager ke RAB (Opsional, agar historis aman jika user ganti ttd)
+            'manager_signature' => $user->ttd 
         ]);
-
-        // (Opsional: Di sini bisa tambah logic kirim email ke Direktur)
 
         return back()->with('success', 'Disetujui Manajer! Dokumen diteruskan ke Direktur.');
     }
 
-    /**
-     * TAHAP 3: DIREKTUR MENYETUJUI (LEVEL 2 - FINAL)
-     * Method BARU
-     */
     public function approveDirektur(Request $request, Rab $rab)
     {
         // 1. Cek Status (Harus Menunggu Direktur)
@@ -571,28 +649,40 @@ class RabController extends Controller
             return back()->with('error', 'Gagal! RAB belum disetujui Manajer atau sudah selesai.');
         }
 
-        // 2. Verifikasi Password
-        $request->validate(['password' => 'required']);
+        $user = \Illuminate\Support\Facades\Auth::user();
 
-        if (!Hash::check($request->password, Auth::user()->password)) {
-            return back()->with('error', 'Password Salah! Gagal menyetujui dokumen.');
+        // A. Cek ketersediaan PIN
+        if (!$user->pin_approval) {
+            return back()->with('error', 'Anda belum mengatur PIN Approval. Silakan atur di menu Profil terlebih dahulu.');
+        }
+
+        // B. Validasi Input
+        $request->validate([
+            'pin' => 'required|digits:6',
+        ]);
+
+        // C. Cek Kecocokan PIN
+        if (!\Illuminate\Support\Facades\Hash::check($request->pin, $user->pin_approval)) {
+            return back()->with('error', 'PIN Approval Salah! Gagal menyetujui dokumen.');
         }
 
         // 3. Cek Tanda Tangan
-        if (!Auth::user()->ttd) {
+        if (!$user->ttd) {
             return back()->with('error', 'Anda belum mengupload Tanda Tangan Digital di menu Profil.');
         }
 
         // 4. Update RAB (FINAL)
         $rab->update([
             'status' => 'Disetujui',
-            'direktur_id' => Auth::id(),
+            'direktur_id' => $user->id,
             'direktur_at' => now(),
+            // Simpan snapshot tanda tangan direktur
+            'direktur_signature' => $user->ttd 
         ]);
 
-        // 5. Kirim Email Notifikasi ke Pengaju (Bahwa RAB sudah Goal)
+        // 5. Kirim Email Notifikasi (Jika pakai email)
         try {
-            Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
+            \Illuminate\Support\Facades\Mail::send('emails.rab-status', ['rab' => $rab], function ($message) use ($rab) {
                 $message->to($rab->pengaju->email);
                 $message->subject('RAB DISETUJUI (FINAL): ' . $rab->kode_rab);
             });

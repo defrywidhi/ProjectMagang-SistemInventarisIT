@@ -23,6 +23,8 @@ Route::resource('barang', BarangITController::class)->middleware(['auth', 'role:
 
 Route::resource('transaksi-masuk', TransaksiMasukController::class)->middleware(['auth', 'role:admin']);
 
+Route::post('transaksi-masuk/konversi', [TransaksiMasukController::class, 'storeKonversi'])->name('transaksi-masuk.store-konversi')->middleware(['auth', 'role:admin']);
+
 
 Route::resource('transaksi-keluar', TransaksiKeluarController::class)->middleware(['auth', 'role:admin|teknisi']);
 
@@ -109,6 +111,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/upload-ttd', [ProfileController::class, 'uploadTtd'])->name('profile.upload_ttd');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::put('/profile/update-pin', [ProfileController::class, 'updatePin'])->name('profile.update-pin');
 });
 
 require __DIR__ . '/auth.php';

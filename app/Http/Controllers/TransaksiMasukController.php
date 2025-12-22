@@ -12,6 +12,8 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\TransaksiMasukExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\TransaksiKeluar;
+use App\Models\RabDetail;
+use App\Models\Kategori;
 
 
 
@@ -30,15 +32,23 @@ class TransaksiMasukController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Request $request)
+public function create(Request $request)
     {
+        if ($request->has('rab_id') && $request->rab_id != null) {
+            $rabId = $request->rab_id;
+            
+            $pendingItems = \App\Models\RabDetail::where('rab_id', $rabId)
+                            ->whereNull('barang_it_id')
+                            ->get();
+            if ($pendingItems->count() > 0) {
+                $kategoris = \App\Models\Kategori::all(); 
+                return view('transaksi-masuk.konversi_barang', compact('pendingItems', 'rabId', 'kategoris'));
+            }
+        }
+
         $barangs = BarangIT::all();
         $suppliers = Supplier::all();
-
-        // Ambil HANYA RAB yang sudah Disetujui
         $rabs = Rab::where('status', 'Disetujui')->get();
-
-        // Ambil rab_id dari URL (query string)
         $selected_rab_id = $request->input('rab_id');
 
         return view('transaksi-masuk.create', compact('barangs', 'suppliers', 'rabs', 'selected_rab_id'));
@@ -60,20 +70,77 @@ class TransaksiMasukController extends Controller
             'rab_id' => 'nullable|exists:rabs,id'
         ]);
 
-    $validateData['user_id'] = Auth::id();
+        $validateData['user_id'] = Auth::id();
 
-    $transaksi_masuk = TransaksiMasuk::create($validateData);
+        $transaksi_masuk = TransaksiMasuk::create($validateData);
 
-    $barang = BarangIT::find($transaksi_masuk->barang_it_id);
-    $barang->stok += $transaksi_masuk->jumlah_masuk;
-    $barang->save();
+        $barang = BarangIT::find($transaksi_masuk->barang_it_id);
+        $barang->stok += $transaksi_masuk->jumlah_masuk;
+        $barang->save();
 
-    // --- UBAH RETURN JADI JSON JIKA AJAX ---
-    if ($request->ajax()) {
-        return response()->json(['status' => 'success', 'message' => 'Transaksi Masuk berhasil disimpan!']);
+        // --- UBAH RETURN JADI JSON JIKA AJAX ---
+        if ($request->ajax()) {
+            return response()->json(['status' => 'success', 'message' => 'Transaksi Masuk berhasil disimpan!']);
+        }
+
+        if($request->has('rab_id') && $request->rab_id != null) {
+            // JIKA DARI RAB: Kembalikan user ke halaman Detail RAB tersebut
+            // Supaya dia bisa langsung klik "Lanjut Pembelian" lagi.
+            return redirect()->route('rab.show', $request->rab_id)
+                ->with('success', 'Transaksi berhasil disimpan! Silakan input barang berikutnya.');
+        }
+
+        // JIKA TRANSAKSI BIASA: Kembali ke index transaksi
+        return redirect()->route('transaksi-masuk.index')
+            ->with('success', 'Data Transaksi Masuk berhasil ditambahkan');
     }
 
-    return redirect()->route('transaksi-masuk.index')->with('success', 'Data Transaksi Berhasil Dimasukkan');
+
+
+    public function storeKonversi(Request $request)
+    {
+        $request->validate([
+            'rab_detail_id' => 'required',
+            'kategori_id' => 'required',
+            'merk' => 'nullable|string',
+            'lokasi' => 'nullable|string',
+        ]);
+
+        $detail = \App\Models\RabDetail::findOrFail($request->rab_detail_id);
+
+        $newFotoPath = null;
+        if ($detail->foto_custom && \Illuminate\Support\Facades\Storage::disk('public')->exists($detail->foto_custom)) {
+            $ext = pathinfo($detail->foto_custom, PATHINFO_EXTENSION);
+            $newFileName = 'converted_' . time() . '_' . rand(100,999) . '.' . $ext;
+            
+            \Illuminate\Support\Facades\Storage::disk('public')->copy(
+                $detail->foto_custom, 
+                'gambar_barang/' . $newFileName
+            );
+            
+            $newFotoPath = $newFileName;
+        }
+
+        $newBarang = \App\Models\BarangIT::create([
+            'kategori_id' => $request->kategori_id,
+            'nama_barang' => $detail->nama_barang_custom,
+            'merk' => $request->merk,
+            'stok' => 0,
+            'stok_minimum' => 3,
+            'kondisi' => 'Baru',
+            'lokasi_penyimpanan' => $request->lokasi,
+            'gambar_barang' => $newFotoPath,
+            'deskripsi' => $detail->keterangan
+        ]);
+
+        $detail->update([
+            'barang_it_id' => $newBarang->id,
+            // Opsional: Kosongkan field custom biar database bersih, atau biarkan sebagai history
+            // 'nama_barang_custom' => null, 
+            // 'foto_custom' => null 
+        ]);
+
+        return back()->with('success', 'Barang berhasil didaftarkan ke Master Gudang!');
     }
 
     /**

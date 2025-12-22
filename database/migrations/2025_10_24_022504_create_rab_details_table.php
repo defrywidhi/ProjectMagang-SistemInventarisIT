@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('rab_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rab_id')->constrained('rabs')->onDelete('cascade');
+            $table->foreignId('barang_it_id')->nullable()->constrained('barang_it')->onDelete('cascade'); 
+            $table->string('nama_barang_custom')->nullable();
+            $table->string('foto_custom')->nullable();
             $table->string('nama_barang_diajukan');
-            $table->integer('jumlah')->unsigned()->default(1);
-            $table->bigInteger('perkiraan_harga_satuan')->default(0);
-            $table->bigInteger('ongkir')->default(0);
-            $table->bigInteger('asuransi')->default(0);
-            $table->bigInteger('total_harga')->default(0);
+            $table->integer('jumlah');
+            $table->decimal('perkiraan_harga_satuan', 15, 2);
+            $table->decimal('ongkir', 15, 2)->default(0);
+            $table->decimal('asuransi', 15, 2)->default(0);
+            $table->decimal('total_harga', 15, 2);
+            $table->text('keterangan')->nullable();
             $table->timestamps();
         });
     }

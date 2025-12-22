@@ -20,14 +20,6 @@
                     @method('patch')
 
                     <div class="card-body">
-                        {{-- Pesan Sukses --}}
-                        @if (session('status') === 'profile-updated')
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                Profil berhasil diperbarui.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
                         <div class="form-group mb-3">
                             <label for="name">Nama Lengkap</label>
                             <input type="text" name="name" id="name" class="form-control @error('name') is-invalid @enderror" value="{{ old('name', $user->name) }}" required>
@@ -65,14 +57,6 @@
                     @method('put')
 
                     <div class="card-body">
-                        {{-- Pesan Sukses --}}
-                        @if (session('status') === 'password-updated')
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                Password berhasil diubah.
-                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                            </div>
-                        @endif
-
                         <div class="form-group mb-3">
                             <label for="current_password">Password Saat Ini</label>
                             <input type="password" name="current_password" id="current_password" class="form-control @error('current_password', 'updatePassword') is-invalid @enderror">
@@ -150,6 +134,117 @@
             </div>
         </div>
 
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card card-warning card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="bi bi-pen-fill"></i> Atur PIN Persetujuan</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            PIN ini digunakan saat Anda melakukan <strong>Persetujuan (Approval)</strong> dokumen RAB. 
+                            <br>PIN berbeda dengan Password Login. Gunakan 6 digit angka.
+                        </div>
+                        <form action="{{ route('profile.update-pin') }}" method="POST">
+                            @csrf
+                            @method('PUT')
+                            
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-3 col-form-label">PIN Baru (6 Angka)</label>
+                                <div class="col-sm-9">
+                                    <input type="password" name="pin" class="form-control @error('pin') is-invalid @enderror" 
+                                        placeholder="Contoh: 123456" maxlength="6" inputmode="numeric" required>
+                                    @error('pin')
+                                        <span class="invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="form-group row mb-3">
+                                <label class="col-sm-3 col-form-label">Konfirmasi PIN</label>
+                                <div class="col-sm-9">
+                                    <input type="password" name="pin_confirmation" class="form-control" 
+                                        placeholder="Ketik ulang PIN baru" maxlength="6" inputmode="numeric" required>
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <div class="col-sm-9 offset-sm-3">
+                                    <button type="submit" class="btn btn-warning text-dark">
+                                        <i class="bi bi-save"></i> Simpan PIN
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
+
+
+
+@push('scripts')
+<script>
+    // 1. Notifikasi Sukses Bawaan Laravel (Profil Updated)
+    @if (session('status') === 'profile-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Profil Diperbarui!',
+            text: 'Informasi profil Anda berhasil disimpan.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // 2. Notifikasi Sukses Bawaan Laravel (Password Updated)
+    @if (session('status') === 'password-updated')
+        Swal.fire({
+            icon: 'success',
+            title: 'Password Diubah!',
+            text: 'Password akun Anda berhasil diganti.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // 3. Notifikasi Sukses Custom (TTD & PIN)
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: "{{ session('success') }}", // Pesan dinamis dari controller
+            timer: 2000,
+            showConfirmButton: false
+        });
+    @endif
+
+    // 4. Notifikasi Error Custom
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: "{{ session('error') }}",
+            confirmButtonColor: '#d33',
+        });
+    @endif
+
+    // 5. Notifikasi Error Validasi Form (Jika ada input salah)
+    @if($errors->any())
+        Swal.fire({
+            icon: 'warning',
+            title: 'Periksa Inputan',
+            html: `
+                <ul style="text-align: left;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            `,
+            confirmButtonColor: '#d33',
+        });
+    @endif
+</script>
+@endpush

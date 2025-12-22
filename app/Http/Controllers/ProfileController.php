@@ -38,6 +38,26 @@ class ProfileController extends Controller
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 
+    // Method update PIN khusus
+    public function updatePin(Request $request)
+    {
+        $request->validate([
+            'pin' => 'required|digits:6|confirmed', // Wajib angka 6 digit & ada konfirmasi
+        ], [
+            'pin.digits' => 'PIN harus terdiri dari 6 angka.',
+            'pin.confirmed' => 'Konfirmasi PIN tidak cocok.',
+        ]);
+
+        $user = auth()->user();
+        
+        // Simpan PIN dengan Hashing (Biar aman kalau database bocor)
+        $user->update([
+            'pin_approval' => \Illuminate\Support\Facades\Hash::make($request->pin)
+        ]);
+
+        return back()->with('success', 'PIN Approval berhasil diperbarui!');
+    }
+
     /**
      * Delete the user's account.
      */

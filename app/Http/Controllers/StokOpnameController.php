@@ -9,6 +9,7 @@ use App\Models\StokOpnameDetail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class StokOpnameController extends Controller
 {
@@ -18,10 +19,25 @@ class StokOpnameController extends Controller
     public function index()
     {
         $stokOpnames = StokOpname::with(['auditor'])->latest()->get();
-        // Kita kirim juga jumlah total barang aktif untuk info di Modal Create
-        $totalBarang = BarangIT::where('stok', '>', 0)->count(); 
         
-        return view('stok-opname.index', compact('stokOpnames', 'totalBarang'));
+        // --- LOGIKA HITUNG STATISTIK BARANG ---
+        
+        // 1. Total Barang Aktif (Stok > 0)
+        $totalBarang = BarangIT::where('stok', '>', 0)->count(); 
+
+        // 2. Hitung Barang yang kena Cooldown (Sudah di-SO sebulan terakhir)
+        $satuBulanLalu = \Carbon\Carbon::now()->subMonth();
+        
+        $barangCooldown = StokOpnameDetail::whereHas('header', function($q) use ($satuBulanLalu) {
+            $q->where('created_at', '>=', $satuBulanLalu)
+              ->where('status', '!=', 'Dibatalkan');
+        })->distinct('barang_it_id')->count('barang_it_id');
+
+        // 3. Barang yang SIAP/ELIGIBLE untuk Opname hari ini
+        $barangSiapOpname = $totalBarang - $barangCooldown;
+        
+        // Kirim ke View
+        return view('stok-opname.index', compact('stokOpnames', 'totalBarang', 'barangCooldown', 'barangSiapOpname'));
     }
 
     /**
@@ -34,7 +50,7 @@ class StokOpnameController extends Controller
         $request->validate([
             'tanggal_opname' => 'required|date',
             'metode' => 'required|in:Full,Random',
-            'jumlah_sampel' => 'nullable|integer|min:1', // Wajib jika Random
+            'jumlah_sampel' => 'nullable|integer|min:1', 
             'catatan' => 'nullable|string',
         ]);
 
@@ -42,7 +58,7 @@ class StokOpnameController extends Controller
             DB::beginTransaction();
 
             // 2. Generate Kode Unik (SO-YYYY-MM-001)
-            $tahunBulan = date('Y-m', strtotime($request->tanggal_opname)); // 2023-12
+            $tahunBulan = date('Y-m', strtotime($request->tanggal_opname)); 
             $lastSO = StokOpname::where('kode_opname', 'like', "SO-{$tahunBulan}-%")->count();
             $noUrut = str_pad($lastSO + 1, 3, '0', STR_PAD_LEFT);
             $kodeSO = "SO-{$tahunBulan}-{$noUrut}";
@@ -57,21 +73,49 @@ class StokOpnameController extends Controller
                 'status' => 'Pending',
             ]);
 
-            // 4. Ambil Barang Sesuai Metode
-            // Kita ambil barang yang stoknya > 0 saja (atau semua barang aktif, tergantung kebijakan)
-            $query = BarangIT::where('stok', '>', 0);
+            // ============================================================
+            // 4. LOGIKA BARU: FILTER COOLDOWN 1 BULAN
+            // ============================================================
+            
+            // A. Tentukan Batas Waktu (Hari ini dikurangi 1 bulan)
+            $satuBulanLalu = Carbon::now()->subMonth();
+
+            // B. Cari ID Barang yang SUDAH PERNAH di-SO sejak 1 bulan lalu
+            // Kita cek tabel Detail, filter berdasarkan tanggal Header-nya
+            // Asumsi relasi di model StokOpnameDetail bernama 'header' (sesuai kode updateItem abang)
+            $barangBarusanDiCek = StokOpnameDetail::whereHas('header', function($q) use ($satuBulanLalu) {
+                $q->where('created_at', '>=', $satuBulanLalu)
+                  ->where('status', '!=', 'Dibatalkan'); // Jaga-jaga kalau ada status batal
+            })->pluck('barang_it_id')->toArray();
+
+            // C. Siapkan Query Dasar
+            // Ambil barang stok > 0 DAN ID-nya TIDAK ADA di daftar hitam (blacklist)
+            $query = BarangIT::where('stok', '>', 0)
+                             ->whereNotIn('id', $barangBarusanDiCek);
+
+            // ============================================================
+            // AKHIR LOGIKA BARU
+            // ============================================================
 
             if ($request->metode == 'Random') {
                 // Ambil Acak sejumlah sampel
                 $jumlah = $request->jumlah_sampel ?? 10;
+                
+                // Cek ketersediaan barang "segar" (yang belum dicek)
+                $tersedia = $query->count();
+                if ($tersedia < $jumlah) {
+                    throw new \Exception("Hanya tersisa $tersedia barang yang belum di-SO dalam sebulan terakhir. Permintaan sampel: $jumlah.");
+                }
+
                 $barangs = $query->inRandomOrder()->take($jumlah)->get();
             } else {
-                // Ambil Semua (Full)
+                // Ambil Semua (Full) - TAPI tetap mematuhi aturan cooldown
                 $barangs = $query->get();
             }
 
             if ($barangs->isEmpty()) {
-                throw new \Exception("Tidak ada barang yang bisa dicek (Stok Kosong semua).");
+                // Pesan error lebih spesifik
+                throw new \Exception("Tidak ada barang untuk diperiksa. Mungkin semua barang sudah di-SO bulan ini?");
             }
 
             // 5. Masukkan ke Detail (Snapshot Stok Sistem)
@@ -79,8 +123,8 @@ class StokOpnameController extends Controller
                 StokOpnameDetail::create([
                     'stok_opname_id' => $stokOpname->id,
                     'barang_it_id' => $barang->id,
-                    'stok_sistem' => $barang->stok, // Kunci stok saat ini
-                    'stok_fisik' => null, // Belum dicek
+                    'stok_sistem' => $barang->stok, 
+                    'stok_fisik' => null, 
                     'selisih' => 0,
                     'status_fisik' => 'Belum Cek',
                 ]);
@@ -96,6 +140,7 @@ class StokOpnameController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             if ($request->ajax()) {
+                // Kirim error 422 atau 500 biar ditangkap frontend
                 return response()->json(['message' => $e->getMessage()], 500);
             }
             return back()->with('error', $e->getMessage());

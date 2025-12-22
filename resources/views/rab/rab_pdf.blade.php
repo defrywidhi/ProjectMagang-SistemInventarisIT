@@ -35,6 +35,34 @@
     </style>
 </head>
 <body>
+    {{-- LOGIC PHP UNTUK GAMBAR PRODUK (HELPER BASE64) --}}
+    @php
+        function getProductImageBase64($detail) {
+            $path = null;
+
+            // 1. Cek apakah ini Barang Master?
+            if ($detail->barang_it_id && $detail->barang_it && $detail->barang_it->gambar_barang) {
+                // Asumsi: Gambar Master disimpan di folder 'gambar_barang'
+                $path = 'gambar_barang/' . $detail->barang_it->gambar_barang;
+            } 
+            // 2. Cek apakah ini Barang Custom?
+            elseif ($detail->foto_custom) {
+                // Path Custom sudah lengkap (rab_custom/xxx.jpg) dari controller
+                $path = $detail->foto_custom;
+            }
+
+            // 3. Proses Konversi ke Base64
+            if ($path && file_exists(storage_path('app/public/' . $path))) {
+                $fullPath = storage_path('app/public/' . $path);
+                $type = pathinfo($fullPath, PATHINFO_EXTENSION);
+                $data = file_get_contents($fullPath);
+                return 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+
+            return null; // Tidak ada gambar
+        }
+    @endphp
+
     <table class="header-table">
         <tr>
             <td class="logo-cell">
@@ -73,18 +101,11 @@
                 <th width="8%">Jumlah</th>
                 <th width="15%">Harga Satuan</th>
                 <th width="10%">Ongkir</th>
-                <th width="10%">Asuransi pengiriman</th>
+                <th width="10%">Asuransi</th>
                 <th width="15%">Sub total</th>
             </tr>
             <tr class="col-number">
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-                <td>5</td>
-                <td>6</td>
-                <td>7</td>
-                <td>8</td>
+                <td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td>
             </tr>
         </thead>
         <tbody>
@@ -92,13 +113,29 @@
             @forelse ($rab->details as $detail)
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
-                    <td>{{ $detail->nama_barang_diajukan }}</td>
-                    <td class="text-center">
-                        <!-- Placeholder for image if available in future -->
-                        @if(isset($detail->gambar) && $detail->gambar)
-                            <img src="{{ public_path('storage/'.$detail->gambar) }}" style="width: 50px; height: auto;">
+                    
+                    {{-- 1. BAGIAN URAIAN BARANG + KETERANGAN --}}
+                    <td>
+                        <strong>{{ $detail->nama_barang_diajukan }}</strong>
+                        @if($detail->keterangan)
+                            <br>
+                            <span style="font-size: 10px; color: #444; font-style: italic;">
+                                Ket: {{ $detail->keterangan }}
+                            </span>
                         @endif
                     </td>
+
+                    {{-- 2. BAGIAN FOTO PRODUK (BASE64) --}}
+                    <td class="text-center">
+                        @php $imgSrc = getProductImageBase64($detail); @endphp
+                        
+                        @if($imgSrc)
+                            <img src="{{ $imgSrc }}" style="width: 50px; height: auto;">
+                        @else
+                            <span style="font-size: 10px;">-</span>
+                        @endif
+                    </td>
+
                     <td class="text-center">{{ $detail->jumlah }}</td>
                     <td class="text-end">Rp {{ number_format($detail->perkiraan_harga_satuan, 0, ',', '.') }}</td>
                     <td class="text-end">{{ $detail->ongkir > 0 ? number_format($detail->ongkir, 0, ',', '.') : '-' }}</td>
@@ -118,6 +155,7 @@
         </tbody>
     </table>
 
+    {{-- TANDA TANGAN --}}
     <table class="signature-table">
         <tr>
             {{-- KOLOM DIREKTUR --}}
