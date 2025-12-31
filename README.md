@@ -1,66 +1,123 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Inventory & Pengadaan Barang (RAB) - Rumah Sakit
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem informasi manajemen inventory IT dan pengadaan barang (RAB) berbasis web yang dibangun menggunakan **Laravel**. Aplikasi ini menangani siklus hidup aset mulai dari pengajuan anggaran, persetujuan berjenjang (tanda tangan digital & PIN), pengadaan barang, hingga audit stok (Stock Opname).
 
-## About Laravel
+## 🚀 Fitur Unggulan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### 1. Pengajuan RAB (Hybrid Input)
+- **Master Data:** Input barang langsung dari database gudang.
+- **Custom Input:** Input barang baru (yang belum ada di gudang) lengkap dengan foto dan spesifikasi.
+- **Validasi:** Status RAB (Draft, Menunggu Manager, Menunggu Direktur, Disetujui, Ditolak).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2. Approval System Berjenjang
+- **Role:** Admin (Input), Manajer (Review), Direktur (Final).
+- **Keamanan Ganda:** Persetujuan menggunakan **PIN 6 Digit** (bukan password login) dan **Tanda Tangan Digital**.
+- **Notifikasi:** Status approval tercatat real-time.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 3. Konversi Barang Otomatis (The Checkpoint)
+- Sistem mendeteksi jika ada barang "Custom" di RAB yang disetujui.
+- **Konversi:** Sebelum mencatat transaksi masuk, Admin *wajib* mendaftarkan barang custom tersebut ke Master Barang (memilih kategori, merk, dll).
+- Foto dari RAB otomatis dicopy ke Master Barang.
 
-## Learning Laravel
+### 4. Transaksi Masuk (Auto-Fill)
+- Integrasi langsung dengan RAB.
+- **Auto-Fill:** Admin tidak perlu mengetik ulang item, sistem mengambil data dari RAB.
+- **Progress Tracking:** Bar status (persentase) untuk memantau apakah semua barang di RAB sudah dibeli/masuk gudang.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### 5. Stok Opname (Audit Cerdas)
+- **Metode Full:** Cek semua aset.
+- **Metode Random Sampling:** Cek acak sejumlah sampel.
+- **Cooldown Logic:** Barang yang sudah di-opname dalam **1 bulan terakhir** otomatis disembunyikan dari daftar sampling berikutnya untuk efisiensi kerja.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🛠️ Instalasi & Setup
 
-## Laravel Sponsors
+Ikuti langkah ini untuk menjalankan project pertama kali:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+1. **Clone Repository**
+git clone <url-repo-anda>
+cd nama-folder
 
-### Premium Partners
+2. **Install Dependency**
+composer install
+npm install && npm run build
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
 
-## Contributing
+3. **Environment Setup**
+Copy file `.env.example` menjadi `.env`, lalu atur koneksi database.
+cp .env.example .env
+php artisan key:generate
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+4. **Database Migration & Seeder**
+php artisan migrate --seed
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
 
-## Security Vulnerabilities
+*(Pastikan migration tabel `users` sudah memiliki kolom `pin_approval` dan `tanda_tangan`)*.
+5. **Storage Link (PENTING!)**
+Agar foto barang dan tanda tangan muncul.
+php artisan storage:link
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
 
-## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📚 Handbook: Alur Logika Sistem
+
+Bagian ini menjelaskan logika "belakang layar" yang penting diketahui developer.
+
+### A. Logika Approval (PIN & TTD)
+
+User (Manajer/Direktur) **wajib** melakukan setup di menu **Profil** terlebih dahulu:
+
+1. Upload Tanda Tangan (format `.png` transparan).
+2. Atur PIN Approval (6 digit angka).
+*Tanpa kedua ini, tombol "Setujui" di halaman RAB tidak akan berfungsi.*
+
+### B. Logika Barang Baru (Custom -> Master)
+
+Saat RAB dibuat dengan item "Custom":
+
+1. Item disimpan di tabel `rab_details` dengan `barang_it_id = NULL`.
+2. Saat RAB Disetujui -> Admin klik "Catat Pembelian".
+3. **Controller Interceptor:** `TransaksiMasukController` akan mengecek apakah ada item dengan `barang_it_id == NULL`.
+4. Jika ada, Admin dilempar ke halaman **Konversi**.
+5. Setelah dikonversi, item di `rab_details` diupdate `barang_it_id`-nya sesuai ID Master baru.
+
+### C. Logika Hapus RAB (Data Integrity)
+
+RAB yang sudah memiliki **Transaksi Masuk** tidak bisa dihapus sembarangan.
+
+* **Sistem Mencegah:** Jika `rab->transaksiMasuks()->exists()`, penghapusan ditolak.
+* **Solusi:** Admin harus menghapus data di menu *Transaksi Masuk* terlebih dahulu (agar stok gudang sinkron), baru bisa menghapus RAB.
+
+### D. Logika Stok Opname (Cooldown)
+
+Untuk mencegah pemeriksaan barang yang sama berulang-ulang:
+
+* Sistem menghitung `Carbon::now()->subMonth()`.
+* Barang yang ada di `stok_opname_details` dalam rentang waktu tersebut akan di-**exclude** (`whereNotIn`) dari daftar pengambilan sampel.
+
+
+## 👤 Role & Hak Akses (Spatie)
+
+1. **Admin IT**
+* Membuat RAB, CRUD Barang, Transaksi Masuk/Keluar, Stok Opname.
+
+
+2. **Manajer**
+* Melihat RAB, Melakukan Approval Tahap 1.
+
+
+3. **Direktur**
+* Melihat RAB, Melakukan Approval Tahap 2 (Final).
+
+
+
+
+## 📝 Catatan Tambahan
+
+* Pastikan folder `storage/app/public` memiliki subfolder: `tanda_tangan`, `gambar_barang`, dan `rab_custom`.
+* Jika terjadi error "Image not found", jalankan ulang `php artisan storage:link`.
+
+
+
+*Dibuat & Dikembangkan untuk RSU Kertha Usada.*
