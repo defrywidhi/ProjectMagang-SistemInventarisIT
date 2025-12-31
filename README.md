@@ -4,7 +4,7 @@ Sistem informasi manajemen inventory IT dan pengadaan barang (RAB) berbasis web 
 
 ## 🚀 Fitur Unggulan
 
-### 1. Pengajuan RAB (Hybrid Input)
+### 1. Pengajuan RAB
 - **Master Data:** Input barang langsung dari database gudang.
 - **Custom Input:** Input barang baru (yang belum ada di gudang) lengkap dengan foto dan spesifikasi.
 - **Validasi:** Status RAB (Draft, Menunggu Manager, Menunggu Direktur, Disetujui, Ditolak).
@@ -14,17 +14,17 @@ Sistem informasi manajemen inventory IT dan pengadaan barang (RAB) berbasis web 
 - **Keamanan Ganda:** Persetujuan menggunakan **PIN 6 Digit** (bukan password login) dan **Tanda Tangan Digital**.
 - **Notifikasi:** Status approval tercatat real-time.
 
-### 3. Konversi Barang Otomatis (The Checkpoint)
+### 3. Konversi Barang Otomatis
 - Sistem mendeteksi jika ada barang "Custom" di RAB yang disetujui.
 - **Konversi:** Sebelum mencatat transaksi masuk, Admin *wajib* mendaftarkan barang custom tersebut ke Master Barang (memilih kategori, merk, dll).
 - Foto dari RAB otomatis dicopy ke Master Barang.
 
-### 4. Transaksi Masuk (Auto-Fill)
+### 4. Transaksi Masuk
 - Integrasi langsung dengan RAB.
 - **Auto-Fill:** Admin tidak perlu mengetik ulang item, sistem mengambil data dari RAB.
 - **Progress Tracking:** Bar status (persentase) untuk memantau apakah semua barang di RAB sudah dibeli/masuk gudang.
 
-### 5. Stok Opname (Audit Cerdas)
+### 5. Stok Opname
 - **Metode Full:** Cek semua aset.
 - **Metode Random Sampling:** Cek acak sejumlah sampel.
 - **Cooldown Logic:** Barang yang sudah di-opname dalam **1 bulan terakhir** otomatis disembunyikan dari daftar sampling berikutnya untuk efisiensi kerja.
@@ -35,28 +35,28 @@ Sistem informasi manajemen inventory IT dan pengadaan barang (RAB) berbasis web 
 Ikuti langkah ini untuk menjalankan project pertama kali:
 
 1. **Clone Repository**
-git clone <url-repo-anda>
-cd nama-folder
+- git clone <url-repo-anda>
+- cd nama-folder
 
 2. **Install Dependency**
-composer install
-npm install && npm run build
+- composer install
+- npm install && npm run build
 
 
 3. **Environment Setup**
-Copy file `.env.example` menjadi `.env`, lalu atur koneksi database.
-cp .env.example .env
-php artisan key:generate
+- Copy file `.env.example` menjadi `.env`, lalu atur koneksi database.
+- cp .env.example .env
+- php artisan key:generate
 
 
 4. **Database Migration & Seeder**
-php artisan migrate --seed
+- php artisan migrate --seed
 
 
 *(Pastikan migration tabel `users` sudah memiliki kolom `pin_approval` dan `tanda_tangan`)*.
 5. **Storage Link (PENTING!)**
 Agar foto barang dan tanda tangan muncul.
-php artisan storage:link
+- php artisan storage:link
 
 
 
@@ -82,14 +82,14 @@ Saat RAB dibuat dengan item "Custom":
 4. Jika ada, Admin dilempar ke halaman **Konversi**.
 5. Setelah dikonversi, item di `rab_details` diupdate `barang_it_id`-nya sesuai ID Master baru.
 
-### C. Logika Hapus RAB (Data Integrity)
+### C. Logika Hapus RAB
 
 RAB yang sudah memiliki **Transaksi Masuk** tidak bisa dihapus sembarangan.
 
 * **Sistem Mencegah:** Jika `rab->transaksiMasuks()->exists()`, penghapusan ditolak.
 * **Solusi:** Admin harus menghapus data di menu *Transaksi Masuk* terlebih dahulu (agar stok gudang sinkron), baru bisa menghapus RAB.
 
-### D. Logika Stok Opname (Cooldown)
+### D. Logika Stok Opname
 
 Untuk mencegah pemeriksaan barang yang sama berulang-ulang:
 
