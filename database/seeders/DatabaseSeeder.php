@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role; // <-- TAMBAHKAN INI
 
 class DatabaseSeeder extends Seeder
 {
@@ -13,11 +14,39 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Jalankan pabrik Roles & Permissions DULU
+        $this->call(RolesAndPermissionsSeeder::class);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Buat User Admin pertama kita
+        $admin = User::create([
+            'name' => 'Admin Gudang',
+            'email' => 'admin@test.com',
+            'password' => bcrypt('1234'),
         ]);
+        $admin->assignRole('admin');
+
+        // Buat Akun MANAJER (Untuk Approval Tahap 1)
+        $manager = User::create([
+            'name' => 'Bapak Manajer',
+            'email' => 'manager@test.com',
+            'password' => bcrypt('1234'),
+        ]);
+        $manager->assignRole('manager');
+
+        // Buat Akun DIREKTUR (Untuk Approval Tahap 2 - Final)
+        $direktur = User::create([
+            'name' => 'Bapak Direktur',
+            'email' => 'direktur@test.com',
+            'password' => bcrypt('1234'),
+        ]);
+        $direktur->assignRole('direktur');
+        
+        // Akun Teknisi
+        $teknisi = User::create([
+            'name' => 'Teknisi Lapangan',
+            'email' => 'teknisi@test.com',
+            'password' => bcrypt('1234'),
+        ]);
+        $teknisi->assignRole('teknisi');
     }
 }
